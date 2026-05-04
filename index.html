@@ -127,7 +127,7 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .bottom-sheet,.modal-box{background:#fff;padding:20px 20px calc(20px + var(--safe-b));width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
 .bottom-sheet{border-radius:var(--r-xl) var(--r-xl) 0 0}
 .modal-box{border-radius:var(--r-lg);max-width:480px;margin:16px;animation:popIn .25s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .sh-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
 .sh-title{font-size:17px;font-weight:900;color:var(--text);margin-bottom:15px;display:flex;align-items:center;gap:7px}
@@ -603,7 +603,7 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
 
 <script>
 // ============================================================
-// 雲端設定（Google Apps Script）與同步引擎升級版
+// 雲端設定與同步引擎
 // ============================================================
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxRFY6GxOluDmQaLtY4GMHJYCTfl1yaTULTcIuICKx6Dz25XowKRt9jvQx0XqU7LMXD_g/exec';
 let GAS_URL = DEFAULT_GAS_URL;
@@ -614,13 +614,8 @@ let pollTimer = null;
 let isSaving = false;
 let isDirty = localStorage.getItem('hv_dirty') === 'true';
 
-function loadGasUrl() {
-  try { GAS_URL = localStorage.getItem(LS_GAS_URL) || DEFAULT_GAS_URL; } catch(e) { GAS_URL = DEFAULT_GAS_URL; }
-}
-function saveGasUrl(url) {
-  GAS_URL = url;
-  try { localStorage.setItem(LS_GAS_URL, url); } catch(e) {}
-}
+function loadGasUrl() { try { GAS_URL = localStorage.getItem(LS_GAS_URL) || DEFAULT_GAS_URL; } catch(e) { GAS_URL = DEFAULT_GAS_URL; } }
+function saveGasUrl(url) { GAS_URL = url; try { localStorage.setItem(LS_GAS_URL, url); } catch(e) {} }
 
 function showSyncStatus(msg, type='ok') {
   const el = document.getElementById('sync-status');
@@ -630,12 +625,7 @@ function showSyncStatus(msg, type='ok') {
   el.style.color = type==='ok'?'#e8ffe8':type==='err'?'#ffe8e8':'#fff3cc';
 }
 
-function openSetup() {
-  loadGasUrl();
-  document.getElementById('setup-url').value = GAS_URL;
-  document.getElementById('setup-test-result').innerHTML = '';
-  openOv('ov-setup');
-}
+function openSetup() { loadGasUrl(); document.getElementById('setup-url').value = GAS_URL; document.getElementById('setup-test-result').innerHTML = ''; openOv('ov-setup'); }
 
 async function testSetupUrl() {
   const url = document.getElementById('setup-url').value.trim();
@@ -644,751 +634,330 @@ async function testSetupUrl() {
   try {
     const res = await fetch(url + '?action=load', { method: 'GET' });
     const data = JSON.parse(await res.text());
-    if (data.ok !== undefined) {
-      document.getElementById('setup-test-result').innerHTML = '<div class="alert al-g"><i class="fa-solid fa-check"></i><span>✅ 連線成功！Apps Script 回應正常。</span></div>';
-    } else {
-      document.getElementById('setup-test-result').innerHTML = '<div class="alert al-r"><i class="fa-solid fa-xmark"></i><span>回應格式異常，請確認程式碼是否正確部署。</span></div>';
-    }
-  } catch(e) {
-    document.getElementById('setup-test-result').innerHTML = `<div class="alert al-r"><i class="fa-solid fa-xmark"></i><span>連線失敗：${e.message}。請確認網址正確，且存取權設為「所有人」。</span></div>`;
-  }
+    if (data.ok !== undefined) { document.getElementById('setup-test-result').innerHTML = '<div class="alert al-g"><i class="fa-solid fa-check"></i><span>✅ 連線成功！</span></div>'; } 
+    else { document.getElementById('setup-test-result').innerHTML = '<div class="alert al-r"><i class="fa-solid fa-xmark"></i><span>回應格式異常。</span></div>'; }
+  } catch(e) { document.getElementById('setup-test-result').innerHTML = `<div class="alert al-r"><i class="fa-solid fa-xmark"></i><span>連線失敗：${e.message}</span></div>`; }
 }
 
 function saveSetupUrl() {
   const url = document.getElementById('setup-url').value.trim();
   if (!url) { toast('請輸入 Apps Script 網址', 'e'); return; }
-  saveGasUrl(url);
-  closeOv('ov-setup');
-  toast('雲端設定已儲存 ✅');
-  updateSetupReminder();
-  startPolling();
-  loadFromCloud();
+  saveGasUrl(url); closeOv('ov-setup'); toast('雲端設定已儲存 ✅');
+  updateSetupReminder(); startPolling(); loadFromCloud();
 }
 
 function updateSetupReminder() {
   const el = document.getElementById('setup-reminder');
   if (!el) return;
   if (!GAS_URL) {
-    el.innerHTML = `<div class="setup-box">
-      <h2>☁️ 尚未設定雲端同步</h2>
-      <p>點左側「雲端設定」按鈕，貼上 Google Apps Script 網址，即可讓所有人打開瀏覽器共用同一份資料。<br><br>
-      <strong>目前資料僅存在此瀏覽器本機，重新整理或換裝置會消失！</strong></p>
-      <button class="btn btn-p" style="margin-top:12px" onclick="openSetup()"><i class="fa-solid fa-gear"></i>立即設定雲端同步</button>
-    </div>`;
-  } else {
-    el.innerHTML = '';
-  }
+    el.innerHTML = `<div class="setup-box"><h2>☁️ 尚未設定雲端同步</h2><p>點左側「雲端設定」按鈕設定同步。</p><button class="btn btn-p" style="margin-top:12px" onclick="openSetup()"><i class="fa-solid fa-gear"></i>立即設定</button></div>`;
+  } else { el.innerHTML = ''; }
 }
 
-// ============================================================
-// 資料儲存
-// ============================================================
 async function saveAll() {
-  try {
-    const json = JSON.stringify(getPayload());
-    localStorage.setItem('hv_backup', json);
-  } catch(e) {}
-
+  try { localStorage.setItem('hv_backup', JSON.stringify(getPayload())); } catch(e) {}
   if (!GAS_URL) return;
-
-  if (!navigator.onLine) {
-    isDirty = true;
-    localStorage.setItem('hv_dirty', 'true');
-    showSyncStatus('📴 離線模式：資料已暫存手機，連線後自動上傳', 'warn');
-    return;
-  }
-
+  if (!navigator.onLine) { isDirty = true; localStorage.setItem('hv_dirty', 'true'); showSyncStatus('📴 離線暫存', 'warn'); return; }
   if (isSaving) return;
-  isSaving = true;
-  showSyncStatus('💾 儲存中…', 'warn');
-
+  isSaving = true; showSyncStatus('💾 儲存中…', 'warn');
   try {
-    const payload = getPayload();
-    const json = JSON.stringify({ action: 'save', payload });
-    
-    const formData = new URLSearchParams();
-    formData.append('data', json);
-
-    await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData
-    });
-
-    isDirty = false;
-    localStorage.removeItem('hv_dirty');
-    showSyncStatus('☁️ 已儲存至雲端 ' + new Date().toLocaleTimeString('zh-TW'));
-  } catch(e) {
-    isDirty = true;
-    localStorage.setItem('hv_dirty', 'true');
-    showSyncStatus('⚠️ 網路不穩，資料已暫存手機', 'err');
-  } finally {
-    isSaving = false;
-  }
+    const json = JSON.stringify({ action: 'save', payload: getPayload() });
+    const formData = new URLSearchParams(); formData.append('data', json);
+    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: formData });
+    isDirty = false; localStorage.removeItem('hv_dirty');
+    showSyncStatus('☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW'));
+  } catch(e) { isDirty = true; showSyncStatus('⚠️ 儲存失敗', 'err'); } finally { isSaving = false; }
 }
 
 async function loadFromCloud() {
-  if (!GAS_URL) {
-    try {
-      const bk = localStorage.getItem('hv_backup');
-      if (bk) { applyPayload(JSON.parse(bk)); showSyncStatus('📦 已從本機備份載入', 'warn'); }
-    } catch(e) {}
-    return;
-  }
-
-  if (isDirty) {
-    saveAll();
-    return;
-  }
-
+  if (!GAS_URL) { try { const bk = localStorage.getItem('hv_backup'); if (bk) applyPayload(JSON.parse(bk)); } catch(e) {} return; }
+  if (isDirty) { saveAll(); return; }
   if (!navigator.onLine) return;
-
-  showSyncStatus('⏳ 從雲端載入最新資料…', 'warn');
+  showSyncStatus('⏳ 同步中…', 'warn');
   try {
     const res = await fetch(GAS_URL + '?action=load&t=' + Date.now());
     const data = JSON.parse(await res.text());
-    if (data.ok && data.payload) {
-      applyPayload(data.payload);
-      showSyncStatus('🔄 已自動更新 ' + new Date().toLocaleTimeString('zh-TW'));
-    } else {
-      showSyncStatus('☁️ 雲端尚無資料，使用本機資料', 'warn');
-      try {
-        const bk = localStorage.getItem('hv_backup');
-        if (bk) applyPayload(JSON.parse(bk));
-      } catch(e) {}
-    }
-  } catch(e) {
-    showSyncStatus('⚠️ 雲端載入失敗，使用本機資料', 'err');
-    try {
-      const bk = localStorage.getItem('hv_backup');
-      if (bk) applyPayload(JSON.parse(bk));
-    } catch(e2) {}
-  }
+    if (data.ok && data.payload) { applyPayload(data.payload); showSyncStatus('🔄 已更新 ' + new Date().toLocaleTimeString('zh-TW')); }
+  } catch(e) { showSyncStatus('⚠️ 載入失敗', 'err'); }
 }
 
-function getPayload() {
-  return { teachers, leaveRequests, otRecords, compUseReqs, schedules, swapRequests, appMeta, ids, holidays: HOLIDAYS };
-}
-
+function getPayload() { return { teachers, leaveRequests, otRecords, compUseReqs, schedules, swapRequests, appMeta, ids, holidays: HOLIDAYS }; }
 function applyPayload(p) {
   if (!p) return;
-  teachers = p.teachers || [];
-  leaveRequests = p.leaveRequests || [];
-  otRecords = p.otRecords || [];
-  compUseReqs = p.compUseReqs || [];
-  schedules = p.schedules || [];
-  swapRequests = p.swapRequests || [];
-  appMeta = p.appMeta || { lastUpdated: null, lastUpdatedBy: '' };
+  teachers = p.teachers || []; leaveRequests = p.leaveRequests || [];
+  otRecords = p.otRecords || []; compUseReqs = p.compUseReqs || [];
+  schedules = p.schedules || []; swapRequests = p.swapRequests || [];
   ids = p.ids || { t:1,l:1,ot:1,cu:1,s:1,sw:1 };
   if (p.holidays) HOLIDAYS = p.holidays;
-  renderPage(curPage);
-  updateBadges();
+  renderPage(curPage); updateBadges();
 }
 
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   if (!GAS_URL) return;
-  pollTimer = setInterval(async () => {
-    if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return;
-    loadFromCloud();
-  }, POLL_INTERVAL);
+  pollTimer = setInterval(() => { if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return; loadFromCloud(); }, POLL_INTERVAL);
 }
 
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && navigator.onLine) {
-    if (isDirty) saveAll(); else loadFromCloud();
-  }
-});
-
-window.addEventListener('online', () => {
-  if (isDirty) { showSyncStatus('📶 網路已恢復，正在補傳資料...', 'warn'); saveAll(); } 
-  else { showSyncStatus('📶 網路已連線，正在拉取最新進度...', 'ok'); loadFromCloud(); }
-});
-
-window.addEventListener('offline', () => {
-  showSyncStatus('📴 目前處於離線狀態', 'warn');
-});
-
 // ============================================================
-// 應用程式資料
+// 核心數據與邏輯
 // ============================================================
-let HOLIDAYS = {
-  '2026-01-01':'元旦','2026-01-26':'農曆除夕','2026-01-27':'春節','2026-01-28':'春節',
-  '2026-01-29':'春節','2026-01-30':'春節休假','2026-02-28':'二二八紀念日',
-  '2026-03-01':'二二八補假','2026-04-03':'兒童節補假','2026-04-04':'兒童節',
-  '2026-04-05':'清明節','2026-05-01':'勞動節','2026-06-19':'端午節',
-  '2026-09-25':'中秋節','2026-10-09':'國慶補假','2026-10-10':'國慶日',
-};
+let HOLIDAYS = {'2026-01-01':'元旦','2026-01-26':'除夕','2026-02-28':'二二八','2026-05-01':'勞動節'};
 const LEAVE_TYPES = {
   annual:{label:'特休',color:'t-b'},sick:{label:'病假',color:'t-o'},
   personal:{label:'事假',color:'t-y'},parental:{label:'育嬰假',color:'t-p'},
   maternity:{label:'產假',color:'t-r'},marriage:{label:'婚假',color:'t-o'},
   funeral:{label:'喪假',color:'t-gray'},
 };
-const CONFLICT_CLASSES = ['小班','幼幼班','育德分班'];
 const ADMIN_PW = 'baby6565966';
-
 let teachers=[], leaveRequests=[], otRecords=[], compUseReqs=[], schedules=[], swapRequests=[];
-let appMeta={lastUpdated:null,lastUpdatedBy:''};
 let authState={isAdmin:false};
 let ids={t:1,l:1,ot:1,cu:1,s:1,sw:1};
-let curPage='home', calYear, calMonth, sumYear, sumMonth;
-let lTab='pending', cTab='ot', cfmCallback=null, editTeacherId=null;
-let activeDateForSched = ''; 
+let curPage='home', calYear=2026, calMonth=4, lTab='pending', cTab='ot';
+let activeDateForSched = '';
 
-/* ============================================================ UTILS ============================================================ */
+/* UTILS */
 function isWE(d){const w=new Date(d).getDay();return w===0||w===6;}
 function isHol(d){return !!HOLIDAYS[d];}
 function isWork(d){return !isWE(d)&&!isHol(d);}
 function addDays(ds,n){const d=new Date(ds);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function t2m(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
-function m2hm(m){if(m<=0)return '0分鐘';const h=Math.floor(m/60),mn=m%60;if(!h)return mn+'分鐘';if(!mn)return h+'小時';return h+'小時'+mn+'分';}
-const WORK_MINS_PER_DAY = 480; 
-function m2days(m){return Math.round(m/WORK_MINS_PER_DAY*10)/10;}
-function fmtD(d){if(!d)return '';const dt=new Date(d);return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function m2hm(m){if(m<=0)return '0分';const h=Math.floor(m/60),mn=m%60;return h?`${h}小時${mn}分`:`${mn}分`;}
+function fmtD(d){if(!d)return '';const dt=new Date(d);return `${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 function todayStr(){return new Date().toISOString().slice(0,10);}
-function annualLeave(hireDate,carryover=0){const hire=new Date(hireDate),now=new Date(),yrs=(now-hire)/(1000*60*60*24*365.25);let days=0;if(yrs<0.5)days=0;else if(yrs<1)days=3;else if(yrs<2)days=7;else if(yrs<3)days=10;else if(yrs<5)days=14;else if(yrs<10)days=15;else days=Math.min(30,15+Math.floor(yrs-10));return days+(carryover||0);}
-function annualBalance(tid){const t=teachers.find(x=>x.id===tid);if(!t)return 0;const total=annualLeave(t.hireDate,t.carryover);const used=leaveRequests.filter(r=>r.teacherId===tid&&r.type==='annual'&&r.status==='approved').reduce((a,r)=>a+r.days,0);return Math.max(0,total-used);}
-function compBalance(tid){const earned=otRecords.filter(r=>r.teacherId===tid).reduce((a,r)=>a+r.minutes,0);const used=compUseReqs.filter(r=>r.teacherId===tid&&r.status==='approved').reduce((a,r)=>a+r.minutes,0);return earned-used;}
+function annualLeave(hireDate,carryover=0){const yrs=(new Date()-new Date(hireDate))/(31557600000);let d=yrs<0.5?0:yrs<1?3:yrs<2?7:yrs<3?10:yrs<5?14:yrs<10?15:Math.min(30,15+Math.floor(yrs-10));return d+(carryover||0);}
+function annualBalance(tid){
+  const t=teachers.find(x=>x.id===tid); if(!t)return 0;
+  const total=annualLeave(t.hireDate,t.carryover);
+  const used=leaveRequests.filter(r=>r.teacherId===tid&&r.type==='annual'&&r.status==='approved').reduce((a,r)=>a+r.days,0);
+  return Math.max(0,total-used);
+}
+function compBalance(tid){
+  const earned=otRecords.filter(r=>r.teacherId===tid).reduce((a,r)=>a+r.minutes,0);
+  const used=compUseReqs.filter(r=>r.teacherId===tid&&r.status==='approved').reduce((a,r)=>a+r.minutes,0);
+  return earned-used;
+}
 function teacherById(id){return teachers.find(t=>t.id===id);}
 function calcLeaveMinutes(sd,st,ed,et){
-  if(!sd||!st||!ed||!et)return{minutes:0,days:0,skipped:[]};
-  const WS=t2m('08:00'),WE=t2m('17:30');
-  const LB=t2m('12:00'),LE=t2m('13:30'); 
-  let total=0,skipped=[],cur=sd;
+  if(!sd||!ed)return{minutes:0,days:0};
+  const WS=t2m('08:00'), WE=t2m('17:30'), LB=t2m('12:00'), LE=t2m('13:30');
+  let total=0, cur=sd;
   while(cur<=ed){
-    if(!isWork(cur)){
-      if(cur!==sd&&cur!==ed){const hn=HOLIDAYS[cur];skipped.push(cur.slice(5)+(hn?'（'+hn+'）':'（週末）'));}
-      cur=addDays(cur,1);continue;
-    }
-    let s=WS,e=WE;
-    if(cur===sd)s=Math.max(WS,t2m(st));
-    if(cur===ed)e=Math.min(WE,t2m(et));
-    if(e>s){
-      let mins=e-s;
-      const overlapStart=Math.max(s,LB);
-      const overlapEnd=Math.min(e,LE);
-      if(overlapEnd>overlapStart)mins-=(overlapEnd-overlapStart);
-      total+=Math.max(0,mins);
+    if(isWork(cur)){
+      let s=cur===sd?Math.max(WS,t2m(st)):WS, e=cur===ed?Math.min(WE,t2m(et)):WE;
+      if(e>s){ let m=e-s, oS=Math.max(s,LB), oE=Math.min(e,LE); if(oE>oS)m-=(oE-oS); total+=Math.max(0,m); }
     }
     cur=addDays(cur,1);
   }
-  return{minutes:total,days:Math.round(total/WORK_MINS_PER_DAY*10)/10,skipped};
+  return{minutes:total,days:Math.round(total/480*10)/10};
 }
-function populateTSel(el){el.innerHTML=teachers.map(t=>`<option value="${t.id}">${t.emoji||'👩‍🏫'} ${t.name}（${t.cls}）</option>`).join('');}
-function toast(msg,type='s'){const c=document.getElementById('toastC');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-8px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},2600);}
+function populateTSel(el){el.innerHTML=teachers.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');}
+function toast(msg,type='s'){const c=document.getElementById('toastC'),t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},2500);}
 function openOv(id){document.getElementById(id).classList.add('show');}
 function closeOv(id){document.getElementById(id).classList.remove('show');}
-document.addEventListener('click',e=>{if(e.target.classList.contains('overlay')){e.target.classList.remove('show');cfmCallback=null;}});
 function nextId(type){ids[type]++;return ids[type];}
 
-/* ============================================================ AUTH & ADMIN ============================================================ */
-function verifyTeacherAuth(tid, pwId) {
-    if (authState.isAdmin) return true;
-    const t = teacherById(tid);
-    const pw = document.getElementById(pwId).value;
-    if (!t) return false;
-    if (t.password && t.password !== pw) { toast('教師密碼驗證錯誤', 'e'); return false; }
-    return true;
-}
-function openAdminLogin(){document.getElementById('admin-pw').value='';openOv('ov-adminlogin');setTimeout(()=>document.getElementById('admin-pw').focus(),100);}
-function doAdminLogin(){const pw=document.getElementById('admin-pw').value;if(pw===ADMIN_PW){authState.isAdmin=true;try{localStorage.setItem(LS_AUTH,JSON.stringify(authState));}catch(e){}closeOv('ov-adminlogin');toast('已進入管理模式 🔓','s');updateAdminUI();renderPage(curPage);}else{toast('密碼錯誤','e');document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus();}}
-function adminLogout(){authState.isAdmin=false;try{localStorage.setItem(LS_AUTH,JSON.stringify(authState));}catch(e){}toast('已登出管理模式','w');updateAdminUI();renderPage(curPage);}
+/* AUTH */
+function verifyTeacherAuth(tid, pwId){if(authState.isAdmin)return true;const t=teacherById(tid),pw=document.getElementById(pwId).value;if(t&&t.password===pw)return true;toast('密碼錯誤','e');return false;}
+function doAdminLogin(){if(document.getElementById('admin-pw').value===ADMIN_PW){authState.isAdmin=true;closeOv('ov-adminlogin');toast('已登入管理模式');updateAdminUI();renderPage(curPage);}else toast('密碼錯誤','e');}
+function adminLogout(){authState.isAdmin=false;toast('已登出管理模式');updateAdminUI();renderPage(curPage);}
 function updateAdminUI(){
-  const on=authState.isAdmin;
-  const st=document.getElementById('sb-admin-status');
-  const lb=document.getElementById('sb-login-btn');
-  const lo=document.getElementById('sb-logout-btn');
-  st.textContent=on?'🔓 管理模式中':'🔒 未登入管理模式';
-  st.className='admin-status '+(on?'on':'off');
-  lb.style.display=on?'none':'flex';
-  lo.style.display=on?'flex':'none';
-  const hb=document.getElementById('home-admin-banner');
-  if(hb){hb.className='admin-banner '+(on?'on':'off');hb.innerHTML=on?'<i class="fa-solid fa-unlock"></i>管理模式中':'<i class="fa-solid fa-lock"></i>未登入管理模式';}
+  const on=authState.isAdmin; document.getElementById('sb-admin-status').textContent=on?'🔓 管理模式':'🔒 一般模式';
+  document.getElementById('sb-login-btn').style.display=on?'none':'flex';
+  document.getElementById('sb-logout-btn').style.display=on?'flex':'none';
   document.querySelectorAll('.auth-req').forEach(el=>el.style.display=on?'none':'block');
-  const hBtn=document.getElementById('btn-holidays');
-  if(hBtn)hBtn.style.display=on?'inline-flex':'none';
-  
-  const addSchedBtn=document.getElementById('btn-add-sched');
-  if(addSchedBtn)addSchedBtn.style.display=on?'inline-flex':'none';
 }
 
-/* ============================================================ NAV ============================================================ */
-function nav(page){curPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-item,[data-p]').forEach(el=>el.classList.toggle('active',el.dataset.p===page));renderPage(page);}
-function renderPage(page){if(page==='home')renderHome();else if(page==='calendar')renderCalendar();else if(page==='leave')renderLeave();else if(page==='comp')renderComp();else if(page==='summary')renderSummary();else if(page==='teachers')renderTeachers();updateBadges();}
-function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').length;const nb=document.getElementById('nb-leave');const bd=document.getElementById('bd-leave');if(nb){nb.textContent=n;nb.style.display=n>0?'':'none';}if(bd)bd.classList.toggle('show',n>0);}
-function emptyHtml(em,msg){return `<div class="empty"><span class="em">${em}</span><p>${msg}</p><p style="font-size:12px;margin-top:6px;color:var(--text3)">目前尚無資料</p></div>`;}
-
-/* ============================================================ HOME ============================================================ */
-function renderHome(){
-  updateAdminUI();updateSetupReminder();
-  const today=todayStr();
-  const todaySched=schedules.filter(s=>s.date===today);
-  const pending=leaveRequests.filter(r=>r.status==='pending');
-  const approved=leaveRequests.filter(r=>r.status==='approved');
-  let alerts='';
-  const now=new Date();const jul31=new Date(now.getFullYear(),6,31);const d2exp=Math.ceil((jul31-now)/(1000*60*60*24));
-  if(d2exp>0&&d2exp<=60)alerts+=`<div class="alert al-y"><i class="fa-solid fa-clock"></i><span>📅 距本學年特休到期（7/31）還有 <strong>${d2exp} 天</strong>，請提醒老師安排休假！</span></div>`;
-  teachers.forEach(t=>{const b=annualBalance(t.id);if(b<=3)alerts+=`<div class="alert al-r"><i class="fa-solid fa-triangle-exclamation"></i><span>⚠️ ${t.emoji||'👩‍🏫'} <strong>${t.name}</strong> 特休僅剩 <strong>${b} 天</strong>，請儘速安排！</span></div>`;});
-  document.getElementById('home-alerts').innerHTML=alerts;
-  document.getElementById('home-stats').innerHTML=`<div class="stat-card sc-o"><div class="stat-icon">👩‍🏫</div><div><div class="stat-label">教師總數</div><div class="stat-value">${teachers.length}</div></div></div><div class="stat-card sc-r"><div class="stat-icon">📋</div><div><div class="stat-label">待審核假單</div><div class="stat-value">${pending.length}</div></div></div><div class="stat-card sc-g"><div class="stat-icon">✅</div><div><div class="stat-label">本月已核准</div><div class="stat-value">${approved.filter(r=>r.startDate.slice(0,7)===today.slice(0,7)).length}</div></div></div><div class="stat-card sc-y"><div class="stat-icon">📅</div><div><div class="stat-label">今日排班</div><div class="stat-value">${todaySched.length}</div></div></div>`;
-  let ph='';if(pending.length===0)ph=emptyHtml('🎉','目前沒有待審核假單');else pending.forEach(r=>{const t=teacherById(r.teacherId);const lt=LEAVE_TYPES[r.type];ph+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.emoji+' '+t.name:'?'} <span class="tag ${lt.color}">${lt.label}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)}–${fmtD(r.endDate)} ⏱️ ${r.days}天</div><div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">✓ 核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">✕ 拒絕</button>`:'<span style="font-size:12px;color:var(--text3)">🔒 請先登入管理模式</span>'}</div></div>`;});
-  document.getElementById('home-pending').innerHTML=ph;
-  let ts='';if(todaySched.length===0)ts=emptyHtml('📭','今日尚無排班資料');else todaySched.forEach(s=>{const t=teacherById(s.teacherId);const shifts=[s.early?'早值班':'',s.main?'全天班':'',s.late?'晚值班':''].filter(Boolean).join('/');ts+=`<div class="list-item" style="padding:10px 14px"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:20px">${t?t.emoji:'?'}</div><div><div style="font-weight:700">${t?t.name:'?'}</div><div style="font-size:12px;color:var(--text3)">${s.cls} · ${shifts}</div></div></div></div>`;});
-  document.getElementById('home-today-sched').innerHTML=ts;
-  let lw='';if(teachers.length===0)lw=emptyHtml('👩‍🏫','請先新增教師資料');else teachers.forEach(t=>{const total=annualLeave(t.hireDate,t.carryover);const bal=annualBalance(t.id);const used=total-bal;const pct=total>0?Math.min(100,Math.round(used/total*100)):0;const cls=bal<=3?'pb-r':bal<=7?'pb-o':'pb-g';lw+=`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:700;font-size:13px">${t.emoji||'👩‍🏫'} ${t.name}</span><span style="font-size:12px" class="${bal<=3?'tr':''}">${bal}天 / ${total}天</span></div><div class="pb-wrap"><div class="pb-fill ${cls}" style="width:${100-pct}%"></div></div></div>`;});
-  document.getElementById('home-leave-warn').innerHTML=lw;
-}
-
-/* ============================================================ CALENDAR ============================================================ */
-function renderCalendar(){
-  const y=calYear,m=calMonth;document.getElementById('cal-title').textContent=`${y} 年 ${m+1} 月`;
-  const first=new Date(y,m,1),last=new Date(y,m+1,0);
-  const dow=first.getDay(),dim=last.getDate();
-  const today=todayStr();let html='<div class="cal-wday sun">日</div><div class="cal-wday">一</div><div class="cal-wday">二</div><div class="cal-wday">三</div><div class="cal-wday">四</div><div class="cal-wday">五</div><div class="cal-wday sat">六</div>';
-  const pLast=new Date(y,m,0).getDate();
-  for(let i=dow;i>0;i--)html+=`<div class="cal-day om"><span class="cal-dn">${pLast-i+1}</span></div>`;
-  for(let d=1;d<=dim;d++){
-    const dstr=ds(y,m,d);const w=new Date(y,m,d).getDay();const we=w===0||w===6;const hol=HOLIDAYS[dstr];const isT=dstr===today;
-    let cls='cal-day';if(we||hol)cls+=' we';if(hol)cls+=' hd';if(isT)cls+=' today';
-    let evs='';
-    if(!we&&!hol){
-      leaveRequests.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).slice(0,3).forEach(r=>{
-        const t=teacherById(r.teacherId);
-        evs+=`<span class="cal-ev lv">${t?t.name.slice(0,2):'?'} ${LEAVE_TYPES[r.type].label}</span>`;
-      });
-      // 需求 1：月曆顯示補休時間
-      compUseReqs.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).slice(0,2).forEach(r=>{
-        const t=teacherById(r.teacherId);
-        evs+=`<span class="cal-ev cp">${t?t.name.slice(0,2):'?'} ${r.startTime}~${r.endTime} 補休</span>`;
-      });
-      schedules.filter(s=>s.date===dstr).slice(0,2).forEach(s=>{
-        const t=teacherById(s.teacherId);
-        evs+=`<span class="cal-ev sc">${t?t.name.slice(0,2):'?'}</span>`;
-      });
-    }
-    html+=`<div class="${cls}" onclick="handleDayClick('${dstr}')"><span class="cal-dn">${d}</span>${hol?`<span class="cal-hname">${hol}</span>`:''}${evs}</div>`;
-  }
-  const total=Math.ceil((dow+dim)/7)*7;
-  for(let i=1;i<=total-dow-dim;i++)html+=`<div class="cal-day om"><span class="cal-dn">${i}</span></div>`;
-  document.getElementById('cal-grid').innerHTML=html;
-  renderSwapList();
-}
-function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
-function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
-
-function handleDayClick(dstr) {
-  if(isWE(dstr)||isHol(dstr)) return;
-  activeDateForSched = dstr;
-  document.getElementById('di-title').innerHTML = `<span>📅</span>${fmtD(dstr)} 明細`;
-  
-  const lv = leaveRequests.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr);
-  const cp = compUseReqs.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr);
-  const sc = schedules.filter(s=>s.date===dstr);
-  
-  let html = '<div class="sec-label">休假名單</div>';
-  if(lv.length===0 && cp.length===0) html += '<div class="empty" style="padding:10px"><p>無人休假</p></div>';
-  else {
-    lv.forEach(r=>{
-      const t = teacherById(r.teacherId);
-      const lt = LEAVE_TYPES[r.type];
-      html += `<div class="list-item" style="padding:8px 12px;margin-bottom:4px"><div class="li-name">${t?t.emoji+' '+t.name:'?'} <span class="tag ${lt.color}">${lt.label} ${r.startTime}~${r.endTime}</span></div></div>`;
-    });
-    // 需求 1：詳細明細顯示補休時間
-    cp.forEach(r=>{
-      const t = teacherById(r.teacherId);
-      html += `<div class="list-item" style="padding:8px 12px;margin-bottom:4px"><div class="li-name">${t?t.emoji+' '+t.name:'?'} <span class="tag t-g">補休 ${r.startTime}~${r.endTime}</span></div></div>`;
-    });
-  }
-
-  if (authState.isAdmin) {
-    html += '<div class="sec-label" style="margin-top:12px">今日排班人員</div>';
-    if(sc.length===0) html += '<div class="empty" style="padding:10px"><p>尚無排班</p></div>';
-    else {
-      sc.forEach(s=>{
-        const t = teacherById(s.teacherId);
-        const shifts = [s.early?'早':'',s.main?'全':'',s.late?'晚':''].filter(Boolean).join('/');
-        html += `<div class="list-item" style="padding:8px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-                   <div class="li-name">${t?t.emoji+' '+t.name:'?'} <span class="tag t-o">${s.cls} - ${shifts}</span></div>
-                   <button class="btn btn-g btn-sm" style="padding:4px 8px;min-height:0" onclick="deleteSched(${s.id})"><i class="fa-solid fa-trash"></i></button>
-                 </div>`;
-      });
-    }
-    document.getElementById('btn-day-add-sched').style.display = 'inline-flex';
-  } else {
-    document.getElementById('btn-day-add-sched').style.display = 'none';
-  }
-  
-  document.getElementById('di-content').innerHTML = html;
-  openOv('ov-dayinfo');
-}
-
-function openSchedFromDay() {
-  closeOv('ov-dayinfo');
-  document.getElementById('sf-date').value = activeDateForSched;
-  openSchedForm();
-}
-
-function deleteSched(id) {
-  if(!authState.isAdmin)return;
-  openCfm('刪除排班','確定要刪除此排班嗎？',()=>{
-     schedules = schedules.filter(s=>s.id !== id);
-     saveAll();toast('排班已刪除');renderCalendar();
-     handleDayClick(activeDateForSched);
-  });
-}
-
-/* ============================================================ HOLIDAYS ============================================================ */
-function openHolidayForm(){document.getElementById('hf-date').value='';document.getElementById('hf-name').value='';renderHolidayList();openOv('ov-holidays');}
-function renderHolidayList(){const list=document.getElementById('holidays-list');const keys=Object.keys(HOLIDAYS).sort();if(keys.length===0){list.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:10px">尚無假日設定</div>';return;}let h='';keys.forEach(k=>{h+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid var(--border)"><div style="font-size:13.5px"><strong style="color:var(--coral)">${k}</strong> - ${HOLIDAYS[k]}</div><button class="btn btn-g btn-sm" style="min-height:28px;padding:4px 8px" onclick="deleteHoliday('${k}')"><i class="fa-solid fa-trash"></i></button></div>`;});list.innerHTML=h;}
-function submitHoliday(){const d=document.getElementById('hf-date').value;const n=document.getElementById('hf-name').value.trim();if(!d||!n){toast('請填寫日期與名稱','e');return;}HOLIDAYS[d]=n;saveAll();renderHolidayList();renderCalendar();toast('假日已更新 ✅');}
-function deleteHoliday(d){delete HOLIDAYS[d];saveAll();renderHolidayList();renderCalendar();toast('假日已刪除');}
-
-/* ============================================================ SCHEDULE ============================================================ */
-function openSchedForm(){populateTSel(document.getElementById('sf-teacher'));document.getElementById('sf-pw').value='';openOv('ov-sched');}
-function submitSched(){
-  const tid=parseInt(document.getElementById('sf-teacher').value);
-  if(!verifyTeacherAuth(tid,'sf-pw'))return;
-  const dt=document.getElementById('sf-date').value;const cls=document.getElementById('sf-class').value;
-  if(!dt){toast('請選擇日期','e');return;}
-  if(isWE(dt)||isHol(dt)){toast('假日不可排班','e');return;}
-  schedules.push({id:nextId('s'),teacherId:tid,date:dt,cls,main:document.getElementById('sf-main').checked,early:document.getElementById('sf-early').checked,late:document.getElementById('sf-late').checked,createdAt:todayStr()});
-  saveAll();closeOv('ov-sched');toast('排班新增成功 🎉');renderPage(curPage);
-}
-
-/* ============================================================ SWAP ============================================================ */
-function openSwapForm(){populateTSel(document.getElementById('sw-from'));populateTSel(document.getElementById('sw-to'));document.getElementById('sw-pw').value='';openOv('ov-swap');}
-function submitSwap(){
-  const from=parseInt(document.getElementById('sw-from').value);
-  if(!verifyTeacherAuth(from,'sw-pw'))return;
-  const to=parseInt(document.getElementById('sw-to').value);const date=document.getElementById('sw-date').value;const note=document.getElementById('sw-note').value;
-  if(from===to){toast('申請人與對象不可相同','e');return;}
-  if(!date){toast('請選擇換班日期','e');return;}
-  swapRequests.push({id:nextId('sw'),fromId:from,toId:to,date,note,status:'pending',createdAt:todayStr()});
-  saveAll();closeOv('ov-swap');toast('換班申請已送出');renderPage(curPage);
-}
-function respondSwap(id,accept){const sw=swapRequests.find(x=>x.id===id);if(!sw)return;sw.status=accept?'approved':'rejected';sw.respondedAt=todayStr();saveAll();toast(accept?'已同意換班申請':'已拒絕換班申請');renderCalendar();}
-function renderSwapList(){let html='';if(swapRequests.length===0){document.getElementById('swap-list').innerHTML=emptyHtml('🔄','目前沒有換班申請');return;}swapRequests.slice().reverse().forEach(sw=>{const from=teacherById(sw.fromId),to=teacherById(sw.toId);const stag=sw.status==='approved'?'<span class="tag t-g">已同意</span>':sw.status==='rejected'?'<span class="tag t-r">已拒絕</span>':'<span class="tag t-y">待回覆</span>';html+=`<div class="list-item"><div class="li-header"><div class="li-name">${from?from.emoji+' '+from.name:'?'} → ${to?to.emoji+' '+to.name:'?'} ${stag}</div></div><div class="li-meta">📅 ${fmtD(sw.date)} ${sw.note?'· '+sw.note:''}</div>${sw.status==='pending'?`<div class="li-actions"><button class="btn btn-s btn-sm" onclick="respondSwap(${sw.id},true)">✓ 同意</button><button class="btn btn-d btn-sm" onclick="respondSwap(${sw.id},false)">✕ 拒絕</button></div>`:''}</div>`;});document.getElementById('swap-list').innerHTML=html;}
-
-/* ============================================================ LEAVE ============================================================ */
-function openLeaveForm(){
-  populateTSel(document.getElementById('lf-teacher'));document.getElementById('lf-pw').value='';
-  document.getElementById('lf-st').value='08:00';document.getElementById('lf-et').value='17:30';
-  const t=todayStr();document.getElementById('lf-sd').value=t;document.getElementById('lf-ed').value=t;
-  document.getElementById('lf-reason').value='';document.getElementById('lf-calc').innerHTML='';document.getElementById('lf-conflict').innerHTML='';
-  openOv('ov-leave');calcLHours();
-}
-function calcLHours(){
-  const sd=document.getElementById('lf-sd').value;const st=document.getElementById('lf-st').value;
-  const ed=document.getElementById('lf-ed').value;const et=document.getElementById('lf-et').value;
-  if(!sd||!ed)return;
-  const r=calcLeaveMinutes(sd,st,ed,et);
-  let html=`<div class="alert al-g"><i class="fa-solid fa-calculator"></i><span>計算結果：<strong>${m2hm(r.minutes)}</strong>（<strong>${r.days}天</strong>）</span></div>`;
-  if(r.skipped.length)html+=`<div class="alert al-y"><i class="fa-solid fa-calendar-xmark"></i><span>已跳過：${r.skipped.join('、')}</span></div>`;
-  document.getElementById('lf-calc').innerHTML=html;
-  
-  const tid=parseInt(document.getElementById('lf-teacher').value);
-  const t=teacherById(tid);
-  let cflt='';
-  if(t&&CONFLICT_CLASSES.includes(t.cls)){
-    // 補齊：計算並提示衝突
-    const conflict=leaveRequests.find(r2=>r2.teacherId!==tid&&r2.status!=='rejected'&&teacherById(r2.teacherId)?.cls===t.cls&&!(r2.endDate<sd||r2.startDate>ed));
-    if(conflict){
-      const ct=teacherById(conflict.teacherId);
-      cflt=`<div class="alert al-r"><i class="fa-solid fa-triangle-exclamation"></i><span>⚠️ 衝突警告：${t.cls} 已有 <strong>${ct?ct.name:'?'}</strong> 申請請假，請確認是否影響人力。</span></div>`;
-    }
-  }
-  document.getElementById('lf-conflict').innerHTML=cflt;
-}
-function submitLeave(){
-  const tid=parseInt(document.getElementById('lf-teacher').value);
-  if(!verifyTeacherAuth(tid,'lf-pw'))return;
-  const type=document.getElementById('lf-type').value;
-  const sd=document.getElementById('lf-sd').value, st=document.getElementById('lf-st').value;
-  const ed=document.getElementById('lf-ed').value, et=document.getElementById('lf-et').value;
-  const reason=document.getElementById('lf-reason').value;
-  
-  if(!sd||!ed){toast('請選擇日期','e');return;}
-  const r = calcLeaveMinutes(sd,st,ed,et);
-  if(r.minutes<=0){toast('時數無效','e');return;}
-  
-  leaveRequests.push({id:nextId('l'), teacherId:tid, type, startDate:sd, startTime:st, endDate:ed, endTime:et, minutes:r.minutes, days:r.days, reason, status:'pending', createdAt:todayStr()});
-  saveAll(); closeOv('ov-leave'); toast('請假申請已送出'); renderPage(curPage);
-}
-function approveLeave(id){
-  if(!authState.isAdmin)return;
-  const r=leaveRequests.find(x=>x.id===id); if(r){r.status='approved'; r.respondedAt=todayStr(); saveAll(); renderPage(curPage); toast('已核准假單');}
-}
-function rejectLeave(id){
-  if(!authState.isAdmin)return;
-  const r=leaveRequests.find(x=>x.id===id); if(r){r.status='rejected'; r.respondedAt=todayStr(); saveAll(); renderPage(curPage); toast('已拒絕假單');}
-}
-
-// 📌 需求 1：新增「管理員有權利核可休假後再刪除，刪除後要同時還假給老師」的功能
-function deleteLeave(id){
-  if(!authState.isAdmin)return;
-  openCfm('取消並退還休假','確定要刪除這筆已核准的假單嗎？刪除後時數將自動歸還至該教師的假別餘額中。', () => {
-    // 從陣列中移除此筆請假，由於餘額是動態計算的，移除後會自動還原額度
-    leaveRequests = leaveRequests.filter(r => r.id !== id);
-    saveAll();
-    toast('已刪除假單並成功退還額度 ✅');
-    renderPage(curPage);
-  });
-}
-
-function setLTab(t,el){lTab=t;document.querySelectorAll('#leave-tabs .tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderLeaveContent();}
-function renderLeave(){renderLeaveContent();}
+/* 核心功能：請假與補休管理 */
 function renderLeaveContent(){
   const c=document.getElementById('leave-content');
   if(lTab==='balance'){
-    let h=''; teachers.forEach(t=>{const bal=annualBalance(t.id); h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag ${bal>5?'t-g':(bal>0?'t-o':'t-r')}">剩餘 ${bal} 天</div></div></div>`;});
-    c.innerHTML=h||emptyHtml('📄','無教師資料');
+    let h=''; teachers.forEach(t=>{const bal=annualBalance(t.id);h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-b">剩餘 ${bal} 天</div></div></div>`;});
+    c.innerHTML=h||'<div class="empty">無教師資料</div>';
   }else{
-    const list = leaveRequests.filter(r=>r.status===lTab).reverse();
-    if(!list.length){c.innerHTML=emptyHtml('📄','無相關假單');return;}
+    const list=leaveRequests.filter(r=>r.status===lTab).reverse();
+    if(!list.length){c.innerHTML='<div class="empty">無資料</div>';return;}
     let h=''; list.forEach(r=>{
       const t=teacherById(r.teacherId); const lt=LEAVE_TYPES[r.type];
-      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt.color}">${lt.label}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime} – ${fmtD(r.endDate)} ${r.endTime}<br>⏱️ ${r.days}天<br>📝 ${r.reason||'無'}</div>`;
-      
-      if(lTab==='pending') {
-        h+=`<div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">✓ 核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">✕ 拒絕</button>`:'<span style="font-size:12px;color:var(--text3)">🔒 管理員專用</span>'}</div>`;
-      } 
-      // 📌 需求 1 UI 更新：當切換至「已核准」且為管理員時，顯示刪除並退還按鈕
-      else if (lTab==='approved') {
-        h+=`<div class="li-actions">${authState.isAdmin?`<button class="btn btn-d btn-sm" onclick="deleteLeave(${r.id})"><i class="fa-solid fa-trash"></i> 取消並退還休假</button>`:''}</div>`;
-      }
-      
+      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt.color}">${lt.label}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.days}天)</div>`;
+      if(lTab==='pending' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">✓ 核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">✕ 拒絕</button></div>`;
+      // 需求核心：管理員刪除已核准假單並退還
+      else if(lTab==='approved' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-d btn-sm" onclick="deleteAndRefundLeave(${r.id})"><i class="fa-solid fa-rotate-left"></i> 刪除並退還額度</button></div>`;
       h+='</div>';
     }); c.innerHTML=h;
   }
 }
 
-/* ============================================================ COMP ============================================================ */
-function openOTForm(){populateTSel(document.getElementById('ot-teacher'));document.getElementById('ot-pw').value='';document.getElementById('ot-date').value=todayStr();document.getElementById('ot-st').value='17:30';document.getElementById('ot-et').value='18:30';document.getElementById('ot-note').value='';calcOTH();openOv('ov-ot');}
-function calcOTH(){
-  const sd=document.getElementById('ot-date').value, st=document.getElementById('ot-st').value, et=document.getElementById('ot-et').value;
-  if(sd&&st&&et) { let m = t2m(et)-t2m(st); if(m<0)m=0; document.getElementById('ot-calc').innerHTML=`<div class="alert al-b">計算加班：<strong>${m} 分鐘</strong></div>`; }
+function deleteAndRefundLeave(id){
+  openCfm('確認退還','刪除此假單後，系統將自動將時數退還給教師。', () => {
+    leaveRequests = leaveRequests.filter(r => r.id !== id);
+    saveAll(); toast('已刪除並退還額度 ✅'); renderPage('leave');
+  });
 }
-function submitOT(){
-  const tid=parseInt(document.getElementById('ot-teacher').value);
-  if(!verifyTeacherAuth(tid,'ot-pw'))return;
-  const dt=document.getElementById('ot-date').value, st=document.getElementById('ot-st').value, et=document.getElementById('ot-et').value, note=document.getElementById('ot-note').value;
-  let m = t2m(et)-t2m(st); if(m<=0){toast('時間錯誤','e');return;}
-  otRecords.push({id:nextId('ot'), teacherId:tid, date:dt, startTime:st, endTime:et, minutes:m, note, createdAt:todayStr()});
-  saveAll(); closeOv('ov-ot'); toast('加班已登記'); renderPage(curPage);
+
+function approveLeave(id){ const r=leaveRequests.find(x=>x.id===id); if(r){r.status='approved';saveAll();renderPage('leave');toast('已核准');} }
+function rejectLeave(id){ const r=leaveRequests.find(x=>x.id===id); if(r){r.status='rejected';saveAll();renderPage('leave');toast('已拒絕');} }
+
+function submitLeave(){
+  const tid=parseInt(document.getElementById('lf-teacher').value); if(!verifyTeacherAuth(tid,'lf-pw'))return;
+  const sd=document.getElementById('lf-sd').value, st=document.getElementById('lf-st').value, ed=document.getElementById('lf-ed').value, et=document.getElementById('lf-et').value;
+  const r=calcLeaveMinutes(sd,st,ed,et); if(r.minutes<=0){toast('時數無效','e');return;}
+  leaveRequests.push({id:nextId('l'),teacherId:tid,type:document.getElementById('lf-type').value,startDate:sd,startTime:st,endDate:ed,endTime:et,minutes:r.minutes,days:r.days,status:'pending'});
+  saveAll(); closeOv('ov-leave'); toast('申請成功'); renderPage('leave');
 }
-function openCompUseForm(){
-  populateTSel(document.getElementById('cu-teacher'));document.getElementById('cu-pw').value='';
-  const t=todayStr(); document.getElementById('cu-sd').value=t; document.getElementById('cu-ed').value=t;
-  document.getElementById('cu-st').value='08:00'; document.getElementById('cu-et').value='12:00';
-  showCompBal(); calcCUH(); openOv('ov-compuse');
-}
-function showCompBal(){
-  const tid=parseInt(document.getElementById('cu-teacher').value); if(!tid)return;
-  const b=compBalance(tid); document.getElementById('cu-bal-info').innerHTML=`<div class="alert al-y">目前可用補休餘額：<strong>${m2hm(b)}</strong></div>`;
-}
-function calcCUH(){
-  const sd=document.getElementById('cu-sd').value, st=document.getElementById('cu-st').value, ed=document.getElementById('cu-ed').value, et=document.getElementById('cu-et').value;
-  if(sd&&st&&ed&&et) { let r = calcLeaveMinutes(sd,st,ed,et); document.getElementById('cu-calc').innerHTML=`<div class="alert al-b">扣除補休：<strong>${m2hm(r.minutes)}</strong></div>`; }
-}
-function submitCompUse(){
-  const tid=parseInt(document.getElementById('cu-teacher').value);
-  if(!verifyTeacherAuth(tid,'cu-pw'))return;
-  const sd=document.getElementById('cu-sd').value, st=document.getElementById('cu-st').value, ed=document.getElementById('cu-ed').value, et=document.getElementById('cu-et').value;
-  let r = calcLeaveMinutes(sd,st,ed,et);
-  if(r.minutes<=0){toast('時間無效','e');return;}
-  if(compBalance(tid)<r.minutes){toast('餘額不足','e');return;}
-  compUseReqs.push({id:nextId('cu'), teacherId:tid, startDate:sd, startTime:st, endDate:ed, endTime:et, minutes:r.minutes, status:'approved', createdAt:todayStr()});
-  saveAll(); closeOv('ov-compuse'); toast('補休已申請'); renderPage(curPage);
-}
-function setCTab(t,el){cTab=t;document.querySelectorAll('#comp-tabs .tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderCompContent();}
-function renderComp(){renderCompContent();}
+
+/* 補休管理專用刪除功能 */
 function renderCompContent(){
   const c=document.getElementById('comp-content');
-  if(cTab==='bal'){
-    let h=''; teachers.forEach(t=>{const bal=compBalance(t.id); h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-b">${m2hm(bal)}</div></div></div>`;});
-    c.innerHTML=h||emptyHtml('⏳','無教師資料');
-  }else if(cTab==='ot'){
-    const list = otRecords.slice().reverse();
-    if(!list.length){c.innerHTML=emptyHtml('💪','無加班紀錄');return;}
-    let h=''; list.forEach(r=>{
+  if(cTab==='ot'){
+    let h=''; otRecords.slice().reverse().forEach(r=>{
       const t=teacherById(r.teacherId);
-      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'}</div><div class="tag t-o">+${m2hm(r.minutes)}</div></div><div class="li-meta">📅 ${fmtD(r.date)} ${r.startTime}-${r.endTime}<br>📝 ${r.note||'無'}</div></div>`;
-    }); c.innerHTML=h;
-  }else{
-    const list = compUseReqs.slice().reverse();
-    if(!list.length){c.innerHTML=emptyHtml('🏖️','無補休紀錄');return;}
-    let h=''; list.forEach(r=>{
+      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} 加班</div>${authState.isAdmin?`<button class="btn btn-g btn-sm" onclick="deleteCompRecord('ot',${r.id})"><i class="fa-solid fa-trash"></i></button>`:''}</div><div class="li-meta">📅 ${fmtD(r.date)} ${r.startTime}~${r.endTime} (${r.minutes}分)</div></div>`;
+    }); c.innerHTML=h||'<div class="empty">無加班紀錄</div>';
+  } else if(cTab==='use'){
+    let h=''; compUseReqs.slice().reverse().forEach(r=>{
       const t=teacherById(r.teacherId);
-      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'}</div><div class="tag t-r">-${m2hm(r.minutes)}</div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime} – ${fmtD(r.endDate)} ${r.endTime}</div></div>`;
-    }); c.innerHTML=h;
+      h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} 補休</div>${authState.isAdmin?`<button class="btn btn-g btn-sm" onclick="deleteCompRecord('use',${r.id})"><i class="fa-solid fa-trash"></i></button>`:''}</div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.minutes}分)</div></div>`;
+    }); c.innerHTML=h||'<div class="empty">無補休紀錄</div>';
+  } else {
+    let h=''; teachers.forEach(t=>{ const b=compBalance(t.id); h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-g">餘額 ${m2hm(b)}</div></div></div>`; });
+    c.innerHTML=h;
   }
 }
 
-/* ============================================================ SUMMARY & 補齊剩餘程式碼 ============================================================ */
-function sumPrev(){sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary();}
-function sumNext(){sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary();}
-
-// 需求 2：顯示每位老師每個月休假日期、補休日期及時間
-function renderSummary(){
-  if(sumYear===undefined){const d=new Date(); sumYear=d.getFullYear(); sumMonth=d.getMonth();}
-  document.getElementById('sum-title').textContent=`${sumYear} 年 ${sumMonth+1} 月`;
-  let prefix = `${sumYear}-${String(sumMonth+1).padStart(2,'0')}`;
-
-  let html='<div class="table-wrap"><table class="dtable"><thead><tr><th style="min-width:60px">教師</th><th style="min-width:180px">當月休假及補休明細</th><th style="min-width:80px">排班統計</th></tr></thead><tbody>';
-  if(!teachers.length) { html+='<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px;">尚無教師資料</td></tr>'; }
-  teachers.forEach(t => {
-    // 取得該月份所有的請假、補休、排班
-    const lv = leaveRequests.filter(r => r.teacherId === t.id && r.status === 'approved' && r.startDate.startsWith(prefix));
-    const cp = compUseReqs.filter(r => r.teacherId === t.id && r.status === 'approved' && r.startDate.startsWith(prefix));
-    const sc = schedules.filter(s => s.teacherId === t.id && s.date.startsWith(prefix));
-    
-    let detailHtml = '';
-    lv.forEach(r => {
-      detailHtml += `<div class="tag ${LEAVE_TYPES[r.type].color}" style="margin:2px 4px 2px 0;">${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${LEAVE_TYPES[r.type].label})</div>`;
-    });
-    cp.forEach(r => {
-      detailHtml += `<div class="tag t-g" style="margin:2px 4px 2px 0;">${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (補休)</div>`;
-    });
-
-    let scStr = `全: ${sc.filter(s=>s.main).length} | 早: ${sc.filter(s=>s.early).length} | 晚: ${sc.filter(s=>s.late).length}`;
-
-    html += `<tr><td>${t.name}</td><td>${detailHtml || '<span style="color:var(--text3);font-size:12px">無</span>'}</td><td style="font-size:11.5px;color:var(--text2)">${scStr}</td></tr>`;
+function deleteCompRecord(type, id){
+  if(!authState.isAdmin)return;
+  openCfm('確認刪除','刪除此紀錄後，補休餘額將會重新計算。', () => {
+    if(type==='ot') otRecords = otRecords.filter(x=>x.id!==id);
+    else compUseReqs = compUseReqs.filter(x=>x.id!==id);
+    saveAll(); toast('紀錄已移除'); renderPage('comp');
   });
-  html += '</tbody></table></div>';
-  document.getElementById('sum-table').innerHTML = html;
 }
 
-/* ============================================================ TEACHERS ============================================================ */
+function submitOT(){
+  const tid=parseInt(document.getElementById('ot-teacher').value); if(!verifyTeacherAuth(tid,'ot-pw'))return;
+  const dt=document.getElementById('ot-date').value, st=document.getElementById('ot-st').value, et=document.getElementById('ot-et').value;
+  let m=t2m(et)-t2m(st); if(m<=0){toast('時間錯誤','e');return;}
+  otRecords.push({id:nextId('ot'),teacherId:tid,date:dt,startTime:st,endTime:et,minutes:m});
+  saveAll(); closeOv('ov-ot'); toast('加班登記成功'); renderPage('comp');
+}
+
+function submitCompUse(){
+  const tid=parseInt(document.getElementById('cu-teacher').value); if(!verifyTeacherAuth(tid,'cu-pw'))return;
+  const sd=document.getElementById('cu-sd').value, st=document.getElementById('cu-st').value, ed=document.getElementById('cu-ed').value, et=document.getElementById('cu-et').value;
+  const r=calcLeaveMinutes(sd,st,ed,et); if(r.minutes<=0){toast('時數無效','e');return;}
+  if(r.minutes > compBalance(tid)){toast('補休餘額不足','e');return;}
+  compUseReqs.push({id:nextId('cu'),teacherId:tid,startDate:sd,startTime:st,endDate:ed,endTime:et,minutes:r.minutes,status:'approved'});
+  saveAll(); closeOv('ov-compuse'); toast('補休申請成功'); renderPage('comp');
+}
+
+/* 日曆與首頁 */
+function renderCalendar(){
+  const y=calYear, m=calMonth; document.getElementById('cal-title').textContent=`${y}年 ${m+1}月`;
+  const first=new Date(y,m,1), last=new Date(y,m+1,0), dow=first.getDay(), dim=last.getDate(), today=todayStr();
+  let h='<div class="cal-wday sun">日</div><div class="cal-wday">一</div><div class="cal-wday">二</div><div class="cal-wday">三</div><div class="cal-wday">四</div><div class="cal-wday">五</div><div class="cal-wday sat">六</div>';
+  for(let i=0;i<dow;i++) h+='<div class="cal-day om"></div>';
+  for(let d=1;d<=dim;d++){
+    const dstr=ds(y,m,d), hol=HOLIDAYS[dstr], we=isWE(dstr);
+    let cls='cal-day'+(we||hol?' we':'')+(dstr===today?' today':''), evs='';
+    leaveRequests.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).forEach(r=>{
+      const t=teacherById(r.teacherId); if(t) evs+=`<span class="cal-ev lv">${t.name}休</span>`;
+    });
+    // 需求 1：日曆顯示補休具體時間
+    compUseReqs.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).forEach(r=>{
+      const t=teacherById(r.teacherId); if(t) evs+=`<span class="cal-ev cp">${t.name} ${r.startTime}補</span>`;
+    });
+    schedules.filter(s=>s.date===dstr).forEach(s=>{
+      const t=teacherById(s.teacherId); if(t) evs+=`<span class="cal-ev sc">${t.name}</span>`;
+    });
+    h+=`<div class="${cls}" onclick="handleDayClick('${dstr}')"><span class="cal-dn">${d}</span>${hol?`<span class="cal-hname">${hol}</span>`:''}${evs}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=h;
+}
+
+function handleDayClick(d){
+  activeDateForSched=d; document.getElementById('di-title').innerHTML=`<span>📅</span>${fmtD(d)} 明細`;
+  const lv=leaveRequests.filter(r=>r.status==='approved'&&r.startDate<=d&&r.endDate>=d);
+  const cp=compUseReqs.filter(r=>r.status==='approved'&&r.startDate<=d&&r.endDate>=d);
+  const sc=schedules.filter(s=>s.date===d);
+  let h='<div class="sec-label">當日假單/補休</div>';
+  lv.forEach(r=>h+=`<div class="list-item">${teacherById(r.teacherId)?.name} (${LEAVE_TYPES[r.type].label}) ${r.startTime}~${r.endTime}</div>`);
+  // 需求 1：明細內完整時間顯示
+  cp.forEach(r=>h+=`<div class="list-item">${teacherById(r.teacherId)?.name} (補休) ${r.startTime}~${r.endTime}</div>`);
+  h+='<div class="sec-label">排班人員</div>';
+  sc.forEach(s=>h+=`<div class="list-item">${teacherById(s.teacherId)?.name} - ${s.cls}</div>`);
+  document.getElementById('di-content').innerHTML=h;
+  document.getElementById('btn-day-add-sched').style.display=authState.isAdmin?'flex':'none';
+  openOv('ov-dayinfo');
+}
+
+/* 核心導覽與初始化 */
+function nav(p){curPage=p;document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');renderPage(p);}
+function renderPage(p){
+  if(p==='home') renderHome();
+  else if(p==='calendar') renderCalendar();
+  else if(p==='leave') renderLeaveContent();
+  else if(p==='comp') renderCompContent();
+  else if(p==='teachers') renderTeachers();
+  updateBadges(); updateAdminUI();
+}
+function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').length;document.getElementById('nb-leave').textContent=n;document.getElementById('nb-leave').style.display=n?'block':'none';}
+
+function openCfm(title,msg,cb){document.getElementById('cfm-title').textContent=title;document.getElementById('cfm-msg').textContent=msg;cfmCallback=cb;openOv('ov-confirm');}
+function doCfm(){if(cfmCallback)cfmCallback();closeOv('ov-confirm');}
+
+function renderHome(){
+  const pending=leaveRequests.filter(r=>r.status==='pending');
+  let h=''; pending.forEach(r=>h+=`<div class="list-item"><div class="li-name">${teacherById(r.teacherId)?.name}</div><div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">核准</button>`:'待管理員核准'}</div></div>`);
+  document.getElementById('home-pending').innerHTML=h||'<div class="empty">目前無待審核假單</div>';
+  document.getElementById('home-stats').innerHTML=`<div class="stat-card sc-o"><div class="stat-icon">👩‍🏫</div><div><div class="stat-label">教師</div><div class="stat-value">${teachers.length}</div></div></div><div class="stat-card sc-r"><div class="stat-icon">📄</div><div><div class="stat-label">待審</div><div class="stat-value">${pending.length}</div></div></div>`;
+}
+
 function renderTeachers(){
-  const grid = document.getElementById('teachers-grid');
-  if(!teachers.length){grid.innerHTML = emptyHtml('👩‍🏫', '尚無教師資料'); return;}
-  let html = '';
-  teachers.forEach(t => {
-    html += `<div class="tc"><div class="tc-av">${t.emoji||'👩‍🏫'}</div><div style="flex:1"><div class="tc-name">${t.name} <span class="tag t-gray" style="margin-left:4px">${t.role==='admin'?'行政':'教師'}</span></div><div class="tc-sub">${t.cls}</div><div style="font-size:11px;color:var(--text3);margin-top:4px">到職日：${fmtD(t.hireDate)}</div></div>`;
-    if(authState.isAdmin) {
-      html += `<button class="btn btn-g btn-sm" style="padding:6px 10px;min-height:0" onclick="deleteTeacher(${t.id})"><i class="fa-solid fa-trash"></i></button>`;
-    }
-    html += `</div>`;
-  });
-  grid.innerHTML = html;
-}
-
-function openTeacherForm(){
-  document.getElementById('tf-id').value = '';
-  document.getElementById('tf-name').value = '';
-  document.getElementById('tf-hire').value = todayStr();
-  document.getElementById('tf-carry').value = '0';
-  document.getElementById('tf-pw').value = '';
-  openOv('ov-teacher');
+  let h=''; teachers.forEach(t=>h+=`<div class="card" style="margin-bottom:10px"><div class="tc-name">${t.name}</div><div class="tc-sub">${t.cls} | 到職:${t.hireDate}</div>${authState.isAdmin?`<button class="btn btn-g btn-sm" onclick="deleteTeacher(${t.id})">刪除</button>`:''}</div>`);
+  document.getElementById('teachers-grid').innerHTML=h||'<div class="empty">無教師資料</div>';
 }
 
 function submitTeacher(){
-  const name = document.getElementById('tf-name').value.trim();
-  if(!name){toast('請填寫教師姓名','e');return;}
-  const cls = document.getElementById('tf-class').value;
-  const hireDate = document.getElementById('tf-hire').value;
-  const carryover = parseInt(document.getElementById('tf-carry').value) || 0;
-  const role = document.getElementById('tf-role').value;
-  const password = document.getElementById('tf-pw').value;
-
-  teachers.push({
-    id: nextId('t'),
-    name, cls, hireDate, carryover, role, password, emoji: '👩‍🏫'
-  });
-  saveAll();
-  closeOv('ov-teacher');
-  toast('教師已新增');
-  renderPage(curPage);
+  const n=document.getElementById('tf-name').value, c=document.getElementById('tf-class').value, h=document.getElementById('tf-hire').value, p=document.getElementById('tf-pw').value;
+  if(!n||!h||!p){toast('請填寫完整資訊','e');return;}
+  teachers.push({id:nextId('t'),name:n,cls:c,hireDate:h,password:p,carryover:parseFloat(document.getElementById('tf-carry').value)||0});
+  saveAll(); closeOv('ov-teacher'); toast('教師已新增'); renderPage('teachers');
 }
 
-function deleteTeacher(id){
-  openCfm('刪除教師', '確定要刪除此教師的資料嗎？相關的請假與排班紀錄將無法對應人員名稱。', () => {
-    teachers = teachers.filter(t => t.id !== id);
-    saveAll();
-    toast('教師資料已刪除');
-    renderPage(curPage);
-  });
-}
+function deleteTeacher(id){ openCfm('刪除教師','確定要移除此教師嗎？相關請假紀錄將受影響。',()=>{teachers=teachers.filter(x=>x.id!==id);saveAll();renderPage('teachers');}); }
 
-/* ============================================================ SYSTEM EXTRAS ============================================================ */
-function exportExcel(){
-  try {
-    const wb = XLSX.utils.book_new();
-    // 簡單匯出當月假單作為範例
-    const ws = XLSX.utils.json_to_sheet(leaveRequests.map(r => ({
-      '申請時間': r.createdAt,
-      '教師ID': r.teacherId,
-      '假別': LEAVE_TYPES[r.type].label,
-      '開始時間': r.startDate + ' ' + r.startTime,
-      '結束時間': r.endDate + ' ' + r.endTime,
-      '天數': r.days,
-      '事由': r.reason,
-      '狀態': r.status === 'approved' ? '已核准' : r.status === 'rejected' ? '已拒絕' : '待審核'
-    })));
-    XLSX.utils.book_append_sheet(wb, ws, "Leaves");
-    XLSX.writeFile(wb, "Harvard_Kindergarten_Export.xlsx");
-    toast('已成功匯出 Excel 檔案 ✅');
-  } catch(e) {
-    toast('匯出失敗，請確認是否載入 XLSX 套件', 'e');
-  }
-}
-
-function openClearModal(){
-  openOv('ov-clear');
-}
-
-function execClear(){
-  const val = document.querySelector('input[name="clr"]:checked')?.value;
-  if(!val){toast('請選擇欲清空的範圍','e');return;}
-  
-  if(val==='all'){ teachers=[]; leaveRequests=[]; otRecords=[]; compUseReqs=[]; schedules=[]; swapRequests=[]; }
-  else if(val==='leave') leaveRequests=[];
-  else if(val==='comp') { otRecords=[]; compUseReqs=[]; }
-  else if(val==='sched') schedules=[];
-  else if(val==='swap') swapRequests=[];
-
-  saveAll();
-  closeOv('ov-clear');
-  toast('指定資料已清空');
-  renderPage(curPage);
-}
-
-function openCfm(title, msg, cb){
-  document.getElementById('cfm-title').innerHTML = `<span>⚠️</span> ${title}`;
-  document.getElementById('cfm-msg').textContent = msg;
-  cfmCallback = cb;
-  openOv('ov-confirm');
-}
-
-function doCfm(){
-  if(cfmCallback) cfmCallback();
-  closeOv('ov-confirm');
-}
-
-// 系統初始化入口點
-window.onload = () => {
-  loadGasUrl();
-  try {
-    const savedAuth = localStorage.getItem(LS_AUTH);
-    if (savedAuth) authState = JSON.parse(savedAuth);
-  } catch(e) {}
-  
-  updateAdminUI();
-  
-  // 取得當前時間以初始化月曆
-  const d = new Date();
-  calYear = d.getFullYear();
-  calMonth = d.getMonth();
-  sumYear = calYear;
-  sumMonth = calMonth;
-  
-  loadFromCloud();
-  renderPage('home');
-  startPolling();
+// 初始化
+window.onload=()=>{
+  loadGasUrl(); loadFromCloud(); startPolling(); updateAdminUI(); nav('home');
+  calYear=new Date().getFullYear(); calMonth=new Date().getMonth();
 };
+
+let cfmCallback=null;
+function setLTab(t,el){lTab=t;document.querySelectorAll('#leave-tabs .tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderLeaveContent();}
+function setCTab(t,el){cTab=t;document.querySelectorAll('#comp-tabs .tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderCompContent();}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+function openTeacherForm(){document.getElementById('tf-name').value='';document.getElementById('tf-pw').value='';openOv('ov-teacher');}
+function openOTForm(){populateTSel(document.getElementById('ot-teacher'));document.getElementById('ot-date').value=todayStr();openOv('ov-ot');}
+function openCompUseForm(){populateTSel(document.getElementById('cu-teacher'));document.getElementById('cu-sd').value=todayStr();document.getElementById('cu-ed').value=todayStr();openOv('ov-compuse');}
+function openLeaveForm(){populateTSel(document.getElementById('lf-teacher'));document.getElementById('lf-sd').value=todayStr();document.getElementById('lf-ed').value=todayStr();openOv('ov-leave');}
+function openSchedForm(){populateTSel(document.getElementById('sf-teacher'));document.getElementById('sf-date').value=activeDateForSched||todayStr();openOv('ov-sched');}
+function submitSched(){
+  const tid=parseInt(document.getElementById('sf-teacher').value); if(!verifyTeacherAuth(tid,'sf-pw'))return;
+  schedules.push({id:nextId('s'),teacherId:tid,date:document.getElementById('sf-date').value,cls:document.getElementById('sf-class').value});
+  saveAll(); closeOv('ov-sched'); toast('排班成功'); renderPage('calendar');
+}
+function openAdminLogin(){document.getElementById('admin-pw').value='';openOv('ov-adminlogin');}
+
+function openClearModal(){openOv('ov-clear');}
+function execClear(){
+  const type=document.querySelector('input[name="clr"]:checked').value;
+  if(type==='all'){teachers=[];leaveRequests=[];otRecords=[];compUseReqs=[];schedules=[];swapRequests=[];ids={t:1,l:1,ot:1,cu:1,s:1,sw:1};}
+  else if(type==='leave')leaveRequests=[]; else if(type==='comp'){otRecords=[];compUseReqs=[];}
+  else if(type==='sched')schedules=[];
+  saveAll(); closeOv('ov-clear'); toast('資料已清空'); renderPage(curPage);
+}
 </script>
 </body>
 </html>
