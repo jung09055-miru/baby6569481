@@ -12,11 +12,11 @@
 :root {
   /* 專業清新風格配置 */
   --cream:#F8FAFC; --cream2:#F1F5F9;
-  --orange:#0EA5E9; --orange-d:#0284C7; --orange-l:#E0F2FE; --orange-ll:#F0F9FF; /* 主色：天際藍 */
-  --coral:#EF4444; --coral-l:#FEE2E2; --coral-d:#B91C1C; /* 警告色：專業紅 */
+  --orange:#0EA5E9; --orange-d:#0284C7; --orange-l:#E0F2FE; --orange-ll:#F0F9FF;
+  --coral:#EF4444; --coral-l:#FEE2E2; --coral-d:#B91C1C;
   --yellow:#F59E0B; --yellow-l:#FEF3C7;
-  --green:#10B981; --green-l:#D1FAE5; --green-d:#047857; /* 輔色：翡翠綠 */
-  --blue:#6366F1; --blue-l:#E0E7FF; --blue-d:#4338CA; /* 點綴：靛藍色 */
+  --green:#10B981; --green-l:#D1FAE5; --green-d:#047857;
+  --blue:#6366F1; --blue-l:#E0E7FF; --blue-d:#4338CA;
   --purple:#8B5CF6; --purple-l:#EDE9FE;
   --pink:#EC4899; --pink-l:#FCE7F3;
   --gray:#F1F5F9; --gray2:#E2E8F0; --gray3:#94A3B8;
@@ -71,16 +71,6 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .ph-title{font-size:21px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:9px}
 .ph-title .em{font-size:24px}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat-card{background:#fff;border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--sh-sm);border:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.stat-icon{font-size:26px;flex-shrink:0}
-.stat-label{font-size:11px;color:var(--text3);font-weight:600}
-.stat-value{font-size:22px;font-weight:900;color:var(--text);line-height:1}
-.sc-o{background:var(--orange-ll);border-color:var(--orange-l)}
-.sc-r{background:var(--coral-l);border-color:#FCA5A5}
-.sc-g{background:var(--green-l);border-color:#6EE7B7}
-.sc-y{background:var(--yellow-l);border-color:#FCD34D}
-.sc-b{background:var(--blue-l);border-color:#A5B4FC}
 .alert{border-radius:var(--r-md);padding:11px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px;font-size:13px;font-weight:500}
 .al-r{background:#FEF2F2;border:1px solid #FECACA;color:var(--coral-d)}
 .al-y{background:#FFFBEB;border:1px solid #FDE68A;color:#B45309}
@@ -113,7 +103,6 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .li-name{font-weight:800;font-size:14.5px}
 .li-meta{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:7px}
 .li-actions{display:flex;gap:7px;flex-wrap:wrap}
-.locked-badge{display:inline-flex;align-items:center;gap:3px;background:var(--gray);color:var(--text3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px}
 .fg{margin-bottom:13px}
 .fl{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:5px;display:block}
 .fi,.fs,.fta{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:16px;font-family:inherit;color:var(--text);background:#fff;transition:border-color .2s;-webkit-appearance:none;box-shadow:inset 0 1px 2px rgba(0,0,0,0.02)}
@@ -131,11 +120,6 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 @keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .sh-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
 .sh-title{font-size:17px;font-weight:900;color:var(--text);margin-bottom:15px;display:flex;align-items:center;gap:7px}
-.pb-wrap{background:var(--border);border-radius:8px;height:7px;overflow:hidden}
-.pb-fill{height:100%;border-radius:8px;transition:width .4s ease}
-.pb-g{background:var(--green)}
-.pb-o{background:var(--yellow)}
-.pb-r{background:var(--coral)}
 .cal-wrap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .cal-wday{text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:7px 2px}
 .cal-wday.sat{color:var(--blue-d)}
@@ -153,16 +137,8 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .cal-ev.lv{background:var(--blue-l);color:var(--blue-d)}
 .cal-ev.cp{background:var(--green-l);color:var(--green-d)}
 .cal-ev.sc{background:var(--orange-l);color:var(--orange-d)}
-.table-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--border)}
-.dtable{width:100%;border-collapse:collapse}
-.dtable th{background:var(--gray);color:var(--text2);font-weight:800;padding:9px 11px;text-align:left;font-size:12px;border-bottom:1px solid var(--border)}
-.dtable td{padding:9px 11px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
-.dtable tr:hover td{background:var(--cream)}
-.tc{background:#fff;border-radius:var(--r-md);border:1px solid var(--border);padding:15px;box-shadow:var(--sh-sm);display:flex;align-items:flex-start;gap:11px}
-.tc-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
 .tc-name{font-weight:800;font-size:15px}
 .tc-sub{font-size:12px;color:var(--text3);margin-bottom:5px}
-.tc-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
 .toast-c{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
 .toast{background:var(--text);color:#fff;padding:11px 18px;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;box-shadow:var(--sh-lg);animation:tIn .3s ease;pointer-events:auto;white-space:nowrap}
 .toast.s{background:var(--green-d)}
@@ -172,14 +148,10 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .tab{padding:8px 15px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;min-height:36px}
 .tab.active{background:var(--orange);color:#fff;border-color:var(--orange)}
-.divider{height:1px;background:var(--border);margin:14px 0}
 .empty{text-align:center;padding:44px 20px;color:var(--text3)}
 .empty .em{font-size:44px;display:block;margin-bottom:10px}
 .empty p{font-size:13.5px;line-height:1.6}
-.mt8{margin-top:8px}.mt14{margin-top:14px}.mt18{margin-top:18px}
-.flex{display:flex}.fb{display:flex;justify-content:space-between;align-items:center}
-.gap8{gap:8px}.gap12{gap:12px}
-.tr{color:var(--coral)}.tg{color:var(--green-d)}.tb{color:var(--blue-d)}.fw8{font-weight:800}
+.mt14{margin-top:14px}
 .sec-label{font-size:12px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;margin-top:14px}
 .pw-note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:7px 11px;font-size:11px;color:#92400E;margin-top:10px}
 .ci{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:14px}
@@ -187,25 +159,34 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .admin-banner{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:var(--r-md);font-size:13px;font-weight:700}
 .admin-banner.on{background:var(--green-l);color:var(--green-d);border:1px solid #A7F3D0}
 .admin-banner.off{background:var(--gray2);color:var(--text2);border:1px solid var(--border)}
-/* 設定頁面特殊樣式 */
 .setup-box{background:var(--orange-ll);border:1px dashed var(--orange);border-radius:var(--r-md);padding:22px;text-align:center;margin-bottom:18px}
 .setup-box h2{font-size:18px;font-weight:900;color:var(--orange-d);margin-bottom:8px}
 .setup-box p{font-size:13px;color:var(--text2);line-height:1.7}
 .step-list{counter-reset:step;list-style:none;text-align:left;margin-top:14px}
 .step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6}
 .step-list li::before{content:counter(step);background:var(--orange);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:1px}
-code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;font-family:monospace;color:var(--blue-d)}
+
+/* 修改點：新增總表專屬卡片樣式 */
+.sum-card { background:#fff;border-radius:var(--r-md);border:1px solid var(--border);padding:14px;margin-bottom:12px;box-shadow:var(--sh-sm); }
+.sum-tname { font-weight:900;font-size:15px;color:var(--text);margin-bottom:10px;border-bottom:1px solid var(--gray2);padding-bottom:6px; }
+.sum-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.sum-sec-title { font-size:12px;font-weight:800;color:var(--text3);margin-bottom:8px;padding:4px 8px;border-radius:4px;display:inline-block; }
+.st-leave { background:var(--blue-l); color:var(--blue-d); }
+.st-comp { background:var(--green-l); color:var(--green-d); }
+.sum-item { font-size:13px;margin-bottom:6px;display:flex;align-items:flex-start;gap:6px;line-height:1.4; }
+.sum-empty { font-size:13px;color:var(--text3);padding-left:14px; }
+
 @media(max-width:768px){
   .sidebar{display:none}
   .main{margin-left:0;padding:14px;padding-bottom:calc(var(--bot-nav) + var(--safe-b) + 14px)}
   .bot-nav{display:block}
-  .stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}
   .fr{grid-template-columns:1fr}
   .cal-day{min-height:48px}
   .cal-dn{font-size:11px}
   .ph-title{font-size:17px}
   .home-cols{grid-template-columns:1fr!important}
   .teachers-grid{grid-template-columns:1fr!important}
+  .sum-grid{grid-template-columns:1fr!important;gap:8px} /* 確保手機版總表不擠壓 */
 }
 @media(min-width:769px){
   .overlay.bsc{align-items:center;justify-content:center}
@@ -250,7 +231,6 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
   </div>
 </div>
 <div class="main">
-  <!-- 修改重點 1: 首頁總覽，僅保留待審核與特休餘額 -->
   <div class="page active" id="page-home">
     <div class="ph">
       <div class="ph-title"><span class="em">🌈</span>首頁總覽</div>
@@ -290,12 +270,6 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--orange-l);border-radius:3px;display:inline-block"></span>排班</span>
       </div>
     </div>
-    <div class="card mt14">
-      <div class="card-title"><span class="em">🔄</span>換班申請
-        <button class="btn btn-o btn-sm" style="margin-left:auto" onclick="openSwapForm()"><i class="fa-solid fa-plus"></i>申請換班</button>
-      </div>
-      <div id="swap-list"></div>
-    </div>
   </div>
   <div class="page" id="page-leave">
     <div class="ph">
@@ -334,8 +308,8 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
         <button style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text2)" onclick="sumNext()"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
     </div>
-    <div class="card"><div id="sum-table"></div></div>
-    <div style="font-size:11px;color:var(--text3);margin-top:7px" id="sum-meta"></div>
+    <!-- 移除了原本的 table，改為獨立卡片渲染機制 -->
+    <div id="sum-table"></div>
   </div>
   <div class="page" id="page-teachers">
     <div class="ph">
@@ -350,21 +324,11 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
   <div class="modal-box" style="max-width:540px">
     <div class="sh-title"><span>☁️</span>雲端同步設定（Google Sheets）</div>
     <div class="alert al-b" style="margin-bottom:14px">
-      <i class="fa-solid fa-circle-info"></i>
-      <span>請依以下步驟設定，完成後所有人打開網頁都能即時共用同一份資料。</span>
+      <i class="fa-solid fa-circle-info"></i><span>請依以下步驟設定，完成後所有人打開網頁都能即時共用同一份資料。</span>
     </div>
-    <ol class="step-list">
-      <li>前往 <a href="https://script.google.com" target="_blank" style="color:var(--blue-d);font-weight:700">script.google.com</a>，點「新增專案」</li>
-      <li>刪除預設內容，貼上 <strong>Code.gs</strong> 檔案中的程式碼</li>
-      <li>點上方「儲存」，再點「部署」→「新增部署作業」</li>
-      <li>類型選「<strong>網頁應用程式</strong>」，執行身分選「<strong>我</strong>」，存取權選「<strong>所有人</strong>」</li>
-      <li>點「部署」→「授權存取」→ 允許權限</li>
-      <li>複製產生的「<strong>網頁應用程式網址</strong>」，貼到下方</li>
-    </ol>
     <div class="fg" style="margin-top:14px">
       <label class="fl">貼上您的 Apps Script 網址</label>
       <input type="url" class="fi" id="setup-url" placeholder="https://script.google.com/macros/s/...../exec">
-      <div class="fhint">格式：https://script.google.com/macros/s/XXXXX/exec</div>
     </div>
     <div id="setup-test-result" style="margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
@@ -378,9 +342,7 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
 <div class="overlay center" id="ov-adminlogin">
   <div class="modal-box">
     <div class="sh-title"><span>🔐</span>管理員登入</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">登入後可核准／拒絕假單，以及管理教師與排班資料。</p>
     <div class="fg"><label class="fl">密碼</label><input type="password" class="fi" id="admin-pw" placeholder="請輸入管理員密碼" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
-    <div class="pw-note">⚠️ 安全警告：此密碼僅為前端示範，正式上線時必須改由後端伺服器驗證。</div>
     <div style="display:flex;gap:8px;margin-top:14px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-adminlogin')">取消</button>
       <button class="btn btn-p btn-full" onclick="doAdminLogin()">登入</button>
@@ -422,8 +384,6 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
       <div class="fg"><label class="fl">結束日期</label><input type="date" class="fi" id="lf-ed" onchange="calcLHours()"></div>
       <div class="fg"><label class="fl">結束時間</label><input type="time" class="fi" id="lf-et" onchange="calcLHours()"></div>
     </div>
-    <div id="lf-calc" style="margin-bottom:11px"></div>
-    <div id="lf-conflict" style="margin-bottom:11px"></div>
     <div class="fg"><label class="fl">事由（選填）</label><textarea class="fta" id="lf-reason" placeholder="請假原因…"></textarea></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-leave')">取消</button>
@@ -447,14 +407,6 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
         <option value="其他">其他</option>
       </select>
     </div>
-    <div class="fg">
-      <label class="fl">班次</label>
-      <div style="display:flex;flex-direction:column;gap:7px;padding:10px;background:var(--cream);border-radius:var(--r-sm)">
-        <label class="ci"><input type="checkbox" id="sf-main" checked> 🕗 全天班 08:00–17:30</label>
-        <label class="ci"><input type="checkbox" id="sf-early"> 🌅 早值班 07:20–08:00</label>
-        <label class="ci"><input type="checkbox" id="sf-late"> 🌇 晚值班 17:30–18:00</label>
-      </div>
-    </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-sched')">取消</button>
       <button class="btn btn-p btn-full" onclick="submitSched()">新增排班</button>
@@ -470,10 +422,9 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
     <div class="fg auth-req"><label class="fl">教師密碼</label><input type="password" class="fi" id="ot-pw" placeholder="請輸入您的密碼以驗證身分"></div>
     <div class="fg"><label class="fl">加班日期</label><input type="date" class="fi" id="ot-date"></div>
     <div class="fr">
-      <div class="fg"><label class="fl">開始時間</label><input type="time" class="fi" id="ot-st" onchange="calcOTH()"></div>
-      <div class="fg"><label class="fl">結束時間</label><input type="time" class="fi" id="ot-et" onchange="calcOTH()"></div>
+      <div class="fg"><label class="fl">開始時間</label><input type="time" class="fi" id="ot-st"></div>
+      <div class="fg"><label class="fl">結束時間</label><input type="time" class="fi" id="ot-et"></div>
     </div>
-    <div id="ot-calc" style="margin-bottom:11px"></div>
     <div class="fg"><label class="fl">備註</label><textarea class="fta" id="ot-note" placeholder="加班事由…"></textarea></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-ot')">取消</button>
@@ -486,38 +437,19 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
   <div class="bottom-sheet">
     <div class="sh-handle"></div>
     <div class="sh-title"><span>🏖️</span>申請補休</div>
-    <div class="fg"><label class="fl">教師</label><select class="fs" id="cu-teacher" onchange="showCompBal()"></select></div>
+    <div class="fg"><label class="fl">教師</label><select class="fs" id="cu-teacher"></select></div>
     <div class="fg auth-req"><label class="fl">教師密碼</label><input type="password" class="fi" id="cu-pw" placeholder="請輸入您的密碼以驗證身分"></div>
-    <div id="cu-bal-info" style="margin-bottom:10px"></div>
     <div class="fr">
-      <div class="fg"><label class="fl">開始日期</label><input type="date" class="fi" id="cu-sd" onchange="calcCUH()"></div>
-      <div class="fg"><label class="fl">開始時間</label><input type="time" class="fi" id="cu-st" onchange="calcCUH()"></div>
+      <div class="fg"><label class="fl">開始日期</label><input type="date" class="fi" id="cu-sd"></div>
+      <div class="fg"><label class="fl">開始時間</label><input type="time" class="fi" id="cu-st"></div>
     </div>
     <div class="fr">
-      <div class="fg"><label class="fl">結束日期</label><input type="date" class="fi" id="cu-ed" onchange="calcCUH()"></div>
-      <div class="fg"><label class="fl">結束時間</label><input type="time" class="fi" id="cu-et" onchange="calcCUH()"></div>
+      <div class="fg"><label class="fl">結束日期</label><input type="date" class="fi" id="cu-ed"></div>
+      <div class="fg"><label class="fl">結束時間</label><input type="time" class="fi" id="cu-et"></div>
     </div>
-    <div id="cu-calc" style="margin-bottom:11px"></div>
-    <div id="cu-conflict" style="margin-bottom:11px"></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-compuse')">取消</button>
       <button class="btn btn-p btn-full" onclick="submitCompUse()">申請補休（直接通過）</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay bsc" id="ov-swap">
-  <div class="bottom-sheet">
-    <div class="sh-handle"></div>
-    <div class="sh-title"><span>🔄</span>申請換班</div>
-    <div class="fg"><label class="fl">申請人</label><select class="fs" id="sw-from"></select></div>
-    <div class="fg auth-req"><label class="fl">申請人密碼</label><input type="password" class="fi" id="sw-pw" placeholder="請輸入您的密碼以驗證身分"></div>
-    <div class="fg"><label class="fl">對象（換班給）</label><select class="fs" id="sw-to"></select></div>
-    <div class="fg"><label class="fl">換班日期</label><input type="date" class="fi" id="sw-date"></div>
-    <div class="fg"><label class="fl">說明</label><textarea class="fta" id="sw-note" placeholder="換班原因或說明…"></textarea></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-g btn-full" onclick="closeOv('ov-swap')">取消</button>
-      <button class="btn btn-p btn-full" onclick="submitSwap()">送出換班申請</button>
     </div>
   </div>
 </div>
@@ -542,35 +474,10 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
       <div class="fg"><label class="fl">到職日期</label><input type="date" class="fi" id="tf-hire"></div>
       <div class="fg"><label class="fl">前年遞延特休（天）</label><input type="number" class="fi" id="tf-carry" value="0" min="0"></div>
     </div>
-    <div class="fr">
-      <div class="fg"><label class="fl">職稱</label>
-        <select class="fs" id="tf-role">
-          <option value="teacher">教師</option>
-          <option value="admin">行政人員</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">教師密碼</label><input type="password" class="fi" id="tf-pw" placeholder="請設定密碼(防誤觸)"></div>
-    </div>
+    <div class="fg"><label class="fl">教師密碼</label><input type="password" class="fi" id="tf-pw" placeholder="請設定密碼(防誤觸)"></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-teacher')">取消</button>
       <button class="btn btn-p btn-full" onclick="submitTeacher()">儲存</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay bsc" id="ov-holidays">
-  <div class="bottom-sheet">
-    <div class="sh-handle"></div>
-    <div class="sh-title"><span>🏖️</span>管理國定假日與補休</div>
-    <div class="fr">
-      <div class="fg"><label class="fl">日期</label><input type="date" class="fi" id="hf-date"></div>
-      <div class="fg"><label class="fl">假日名稱</label><input type="text" class="fi" id="hf-name" placeholder="例: 中秋節"></div>
-    </div>
-    <button class="btn btn-p btn-full" style="margin-bottom:14px" onclick="submitHoliday()">新增 / 更新假日</button>
-    <div class="sec-label">目前設定的假日</div>
-    <div id="holidays-list" style="max-height:250px;overflow-y:auto;background:var(--cream);border-radius:var(--r-sm);padding:8px;border:1px solid var(--border)"></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn btn-g btn-full" onclick="closeOv('ov-holidays')">關閉</button>
     </div>
   </div>
 </div>
@@ -589,13 +496,8 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
 <div class="overlay center" id="ov-clear">
   <div class="modal-box">
     <div class="sh-title"><span>🗑️</span>清空資料</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:13px">請選擇清空範圍（清空後不可復原）：</p>
     <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="all"> 全部資料</label>
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="leave"> 只清空請假資料</label>
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="comp"> 只清空補休資料</label>
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="sched"> 只清空排班資料</label>
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="swap"> 只清空換班申請</label>
+      <label style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--cream);border-radius:var(--r-sm);cursor:pointer;font-size:13.5px"><input type="radio" name="clr" value="all" checked> 全部資料</label>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-clear')">取消</button>
@@ -605,14 +507,9 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
 </div>
 
 <script>
-// ============================================================
-// 雲端設定與同步引擎
-// ============================================================
-const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxRFY6GxOluDmQaLtY4GMHJYCTfl1yaTULTcIuICKx6Dz25XowKRt9jvQx0XqU7LMXD_g/exec';
-let GAS_URL = DEFAULT_GAS_URL;
+const DEFAULT_GAS_URL = '';
+let GAS_URL = '';
 const LS_GAS_URL = 'hv_gas_url';
-const LS_AUTH = 'hv_auth';
-const POLL_INTERVAL = 15000;
 let pollTimer = null;
 let isSaving = false;
 let isDirty = localStorage.getItem('hv_dirty') === 'true';
@@ -644,7 +541,6 @@ async function testSetupUrl() {
 
 function saveSetupUrl() {
   const url = document.getElementById('setup-url').value.trim();
-  if (!url) { toast('請輸入 Apps Script 網址', 'e'); return; }
   saveGasUrl(url); closeOv('ov-setup'); toast('雲端設定已儲存 ✅');
   updateSetupReminder(); startPolling(); loadFromCloud();
 }
@@ -684,13 +580,12 @@ async function loadFromCloud() {
   } catch(e) { showSyncStatus('⚠️ 載入失敗', 'err'); }
 }
 
-function getPayload() { return { teachers, leaveRequests, otRecords, compUseReqs, schedules, swapRequests, appMeta, ids, holidays: HOLIDAYS }; }
+function getPayload() { return { teachers, leaveRequests, otRecords, compUseReqs, schedules, ids, holidays: HOLIDAYS }; }
 function applyPayload(p) {
   if (!p) return;
   teachers = p.teachers || []; leaveRequests = p.leaveRequests || [];
   otRecords = p.otRecords || []; compUseReqs = p.compUseReqs || [];
-  schedules = p.schedules || []; swapRequests = p.swapRequests || [];
-  ids = p.ids || { t:1,l:1,ot:1,cu:1,s:1,sw:1 };
+  schedules = p.schedules || []; ids = p.ids || { t:1,l:1,ot:1,cu:1,s:1 };
   if (p.holidays) HOLIDAYS = p.holidays;
   renderPage(curPage); updateBadges();
 }
@@ -698,12 +593,9 @@ function applyPayload(p) {
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   if (!GAS_URL) return;
-  pollTimer = setInterval(() => { if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return; loadFromCloud(); }, POLL_INTERVAL);
+  pollTimer = setInterval(() => { if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return; loadFromCloud(); }, 15000);
 }
 
-// ============================================================
-// 核心數據與邏輯
-// ============================================================
 let HOLIDAYS = {'2026-01-01':'元旦','2026-01-26':'除夕','2026-02-28':'二二八','2026-05-01':'勞動節'};
 const LEAVE_TYPES = {
   annual:{label:'特休',color:'t-b'},sick:{label:'病假',color:'t-o'},
@@ -712,50 +604,59 @@ const LEAVE_TYPES = {
   funeral:{label:'喪假',color:'t-gray'},
 };
 const ADMIN_PW = 'baby6565966';
-let teachers=[], leaveRequests=[], otRecords=[], compUseReqs=[], schedules=[], swapRequests=[];
+let teachers=[], leaveRequests=[], otRecords=[], compUseReqs=[], schedules=[];
 let authState={isAdmin:false};
-let ids={t:1,l:1,ot:1,cu:1,s:1,sw:1};
+let ids={t:1,l:1,ot:1,cu:1,s:1};
 let curPage='home', calYear=2026, calMonth=4, lTab='pending', cTab='ot';
 let activeDateForSched = '';
-
-// 修改點 2：新增每月總表變數
 let sumYear = new Date().getFullYear(), sumMonth = new Date().getMonth();
 
-/* UTILS */
 function isWE(d){const w=new Date(d).getDay();return w===0||w===6;}
 function isHol(d){return !!HOLIDAYS[d];}
 function isWork(d){return !isWE(d)&&!isHol(d);}
 function addDays(ds,n){const d=new Date(ds);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
-function t2m(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+function t2m(t){if(!t)return 0; const[h,m]=t.split(':').map(Number);return h*60+m;}
 function m2hm(m){if(m<=0)return '0分';const h=Math.floor(m/60),mn=m%60;return h?`${h}小時${mn}分`:`${mn}分`;}
-function fmtD(d){if(!d)return '';const dt=new Date(d);return `${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-function todayStr(){return new Date().toISOString().slice(0,10);}
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 
-// 修改點 3: 新增學年度區間判斷功能 (當年度8/1至隔年7/31)
+// 修正點 2：字串直接解析日期，避免時區吃掉一日的 Bug
+function fmtD(d){
+  if(!d) return '';
+  const pts = d.split('-');
+  if(pts.length === 3) return `${pts[0]}/${parseInt(pts[1])}/${parseInt(pts[2])}`;
+  return d;
+}
+
+// 修正點 2：判斷假單區間是否與該月份重疊 (支援單日與跨月請假)
+function isOverlapMonth(sd, ed, y, m) {
+  if(!sd) return false;
+  const end = ed || sd;
+  const mStart = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const mEnd = `${y}-${String(m+1).padStart(2,'0')}-31`; 
+  return sd <= mEnd && end >= mStart;
+}
+
 function getAcaYearBounds(dateStr) {
-  const d = dateStr ? new Date(dateStr) : new Date();
-  const y = d.getFullYear();
-  const m = d.getMonth(); // 0 是 1月, 7 是 8月
-  let startY = m >= 7 ? y : y - 1;
+  const dStr = dateStr || todayStr();
+  const [y, mStr] = dStr.split('-');
+  const yNum = parseInt(y);
+  const mNum = parseInt(mStr); // 1-12
+  let startY = mNum >= 8 ? yNum : yNum - 1;
   return { start: `${startY}-08-01`, end: `${startY+1}-07-31` };
 }
 
 function annualLeave(hireDate,carryover=0){const yrs=(new Date()-new Date(hireDate))/(31557600000);let d=yrs<0.5?0:yrs<1?3:yrs<2?7:yrs<3?10:yrs<5?14:yrs<10?15:Math.min(30,15+Math.floor(yrs-10));return d+(carryover||0);}
-
-// 修改點 3: 更新特休餘額邏輯，套用 8 月 1 日學期制重新起算規則
 function annualBalance(tid){
   const t=teachers.find(x=>x.id===tid); if(!t)return 0;
   const total=annualLeave(t.hireDate,t.carryover);
   const bounds = getAcaYearBounds(todayStr());
-  // 僅計算在「當前學年度」區間內已被核准的特休天數
-  const used=leaveRequests.filter(r=>
-    r.teacherId===tid && r.type==='annual' && r.status==='approved' &&
-    r.startDate >= bounds.start && r.startDate <= bounds.end
-  ).reduce((a,r)=>a+r.days,0);
+  const used=leaveRequests.filter(r=>r.teacherId===tid && r.type==='annual' && r.status==='approved' && r.startDate >= bounds.start && r.startDate <= bounds.end).reduce((a,r)=>a+r.days,0);
   return Math.max(0,total-used);
 }
-
 function compBalance(tid){
   const earned=otRecords.filter(r=>r.teacherId===tid).reduce((a,r)=>a+r.minutes,0);
   const used=compUseReqs.filter(r=>r.teacherId===tid&&r.status==='approved').reduce((a,r)=>a+r.minutes,0);
@@ -781,7 +682,6 @@ function openOv(id){document.getElementById(id).classList.add('show');}
 function closeOv(id){document.getElementById(id).classList.remove('show');}
 function nextId(type){ids[type]++;return ids[type];}
 
-/* AUTH */
 function verifyTeacherAuth(tid, pwId){if(authState.isAdmin)return true;const t=teacherById(tid),pw=document.getElementById(pwId).value;if(t&&t.password===pw)return true;toast('密碼錯誤','e');return false;}
 function doAdminLogin(){if(document.getElementById('admin-pw').value===ADMIN_PW){authState.isAdmin=true;closeOv('ov-adminlogin');toast('已登入管理模式');updateAdminUI();renderPage(curPage);}else toast('密碼錯誤','e');}
 function adminLogout(){authState.isAdmin=false;toast('已登出管理模式');updateAdminUI();renderPage(curPage);}
@@ -792,7 +692,6 @@ function updateAdminUI(){
   document.querySelectorAll('.auth-req').forEach(el=>el.style.display=on?'none':'block');
 }
 
-/* 核心功能：請假與補休管理 */
 function renderLeaveContent(){
   const c=document.getElementById('leave-content');
   if(lTab==='balance'){
@@ -805,19 +704,13 @@ function renderLeaveContent(){
       const t=teacherById(r.teacherId); const lt=LEAVE_TYPES[r.type];
       h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt.color}">${lt.label}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.days}天)</div>`;
       if(lTab==='pending' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">✓ 核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">✕ 拒絕</button></div>`;
-      else if(lTab==='approved' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-d btn-sm" onclick="deleteAndRefundLeave(${r.id})"><i class="fa-solid fa-rotate-left"></i> 刪除並退還額度</button></div>`;
+      else if(lTab==='approved' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-d btn-sm" onclick="deleteAndRefundLeave(${r.id})"><i class="fa-solid fa-rotate-left"></i> 刪除退還</button></div>`;
       h+='</div>';
     }); c.innerHTML=h;
   }
 }
 
-function deleteAndRefundLeave(id){
-  openCfm('確認退還','刪除此假單後，系統將自動將時數退還給教師。', () => {
-    leaveRequests = leaveRequests.filter(r => r.id !== id);
-    saveAll(); toast('已刪除並退還額度 ✅'); renderPage('leave');
-  });
-}
-
+function deleteAndRefundLeave(id){ openCfm('確認退還','刪除此假單後，系統將自動退還額度。', () => { leaveRequests = leaveRequests.filter(r => r.id !== id); saveAll(); toast('已刪除並退還額度 ✅'); renderPage('leave'); }); }
 function approveLeave(id){ const r=leaveRequests.find(x=>x.id===id); if(r){r.status='approved';saveAll();renderPage('leave');toast('已核准');} }
 function rejectLeave(id){ const r=leaveRequests.find(x=>x.id===id); if(r){r.status='rejected';saveAll();renderPage('leave');toast('已拒絕');} }
 
@@ -826,10 +719,9 @@ function submitLeave(){
   const sd=document.getElementById('lf-sd').value, st=document.getElementById('lf-st').value, ed=document.getElementById('lf-ed').value, et=document.getElementById('lf-et').value;
   const r=calcLeaveMinutes(sd,st,ed,et); if(r.minutes<=0){toast('時數無效','e');return;}
   leaveRequests.push({id:nextId('l'),teacherId:tid,type:document.getElementById('lf-type').value,startDate:sd,startTime:st,endDate:ed,endTime:et,minutes:r.minutes,days:r.days,status:'pending'});
-  saveAll(); closeOv('ov-leave'); toast('申請成功'); renderPage('leave');
+  saveAll(); closeOv('ov-leave'); toast('申請成功，待管理員核准'); renderPage('leave');
 }
 
-/* 補休管理專用刪除功能 */
 function renderCompContent(){
   const c=document.getElementById('comp-content');
   if(cTab==='ot'){
@@ -850,9 +742,8 @@ function renderCompContent(){
 
 function deleteCompRecord(type, id){
   if(!authState.isAdmin)return;
-  openCfm('確認刪除','刪除此紀錄後，補休餘額將會重新計算。', () => {
-    if(type==='ot') otRecords = otRecords.filter(x=>x.id!==id);
-    else compUseReqs = compUseReqs.filter(x=>x.id!==id);
+  openCfm('確認刪除','刪除此紀錄後，補休餘額將重新計算。', () => {
+    if(type==='ot') otRecords = otRecords.filter(x=>x.id!==id); else compUseReqs = compUseReqs.filter(x=>x.id!==id);
     saveAll(); toast('紀錄已移除'); renderPage('comp');
   });
 }
@@ -874,7 +765,6 @@ function submitCompUse(){
   saveAll(); closeOv('ov-compuse'); toast('補休申請成功'); renderPage('comp');
 }
 
-/* 日曆與首頁 */
 function renderCalendar(){
   const y=calYear, m=calMonth; document.getElementById('cal-title').textContent=`${y}年 ${m+1}月`;
   const first=new Date(y,m,1), last=new Date(y,m+1,0), dow=first.getDay(), dim=last.getDate(), today=todayStr();
@@ -907,12 +797,11 @@ function handleDayClick(d){
   cp.forEach(r=>h+=`<div class="list-item">${teacherById(r.teacherId)?.name} (補休) ${r.startTime}~${r.endTime}</div>`);
   h+='<div class="sec-label">排班人員</div>';
   sc.forEach(s=>h+=`<div class="list-item">${teacherById(s.teacherId)?.name} - ${s.cls}</div>`);
-  document.getElementById('di-content').innerHTML=h;
+  document.getElementById('di-content').innerHTML=h||'<div class="empty" style="padding:10px">無排班或休假</div>';
   document.getElementById('btn-day-add-sched').style.display=authState.isAdmin?'flex':'none';
   openOv('ov-dayinfo');
 }
 
-/* 核心導覽與初始化 */
 function nav(p){curPage=p;document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');renderPage(p);}
 function renderPage(p){
   if(p==='home') renderHome();
@@ -920,7 +809,7 @@ function renderPage(p){
   else if(p==='leave') renderLeaveContent();
   else if(p==='comp') renderCompContent();
   else if(p==='teachers') renderTeachers();
-  else if(p==='summary') renderSummary(); // 修改點 2: 加入呼叫每月總表
+  else if(p==='summary') renderSummary();
   updateBadges(); updateAdminUI();
 }
 function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').length;document.getElementById('nb-leave').textContent=n;document.getElementById('nb-leave').style.display=n?'block':'none';}
@@ -928,26 +817,19 @@ function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').le
 function openCfm(title,msg,cb){document.getElementById('cfm-title').textContent=title;document.getElementById('cfm-msg').textContent=msg;cfmCallback=cb;openOv('ov-confirm');}
 function doCfm(){if(cfmCallback)cfmCallback();closeOv('ov-confirm');}
 
-// 修改點 1: 更新首頁總覽，僅出現待審核清單（含日期資訊）及老師特休餘額
 function renderHome(){
   const pending=leaveRequests.filter(r=>r.status==='pending');
   let hPending='';
   pending.forEach(r=>{
-    const t = teacherById(r.teacherId);
-    const lt = LEAVE_TYPES[r.type];
-    // 新增詳細日期與時間
+    const t = teacherById(r.teacherId), lt = LEAVE_TYPES[r.type];
     hPending+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt?lt.color:''}">${lt?lt.label:'?'}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.days}天)</div><div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">拒絕</button>`:'待管理員核准'}</div></div>`;
   });
   document.getElementById('home-pending').innerHTML=hPending||'<div class="empty">目前無待審核假單</div>';
 
-  // 顯示特休區間並渲染餘額
   const bounds = getAcaYearBounds(todayStr());
   document.getElementById('home-aca-period').textContent = `學年計算區間：${bounds.start} ~ ${bounds.end}`;
   let hBal='';
-  teachers.forEach(t=>{
-    const bal = annualBalance(t.id);
-    hBal+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-b">剩餘 ${bal} 天</div></div></div>`;
-  });
+  teachers.forEach(t=>{ const bal = annualBalance(t.id); hBal+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-b">剩餘 ${bal} 天</div></div></div>`; });
   document.getElementById('home-balances').innerHTML=hBal||'<div class="empty">無教師資料</div>';
 }
 
@@ -963,42 +845,57 @@ function submitTeacher(){
   saveAll(); closeOv('ov-teacher'); toast('教師已新增'); renderPage('teachers');
 }
 
-function deleteTeacher(id){ openCfm('刪除教師','確定要移除此教師嗎？相關請假紀錄將受影響。',()=>{teachers=teachers.filter(x=>x.id!==id);saveAll();renderPage('teachers');}); }
+function deleteTeacher(id){ openCfm('刪除教師','確定移除此教師？',()=>{teachers=teachers.filter(x=>x.id!==id);saveAll();renderPage('teachers');}); }
 
-// 修改點 2: 實作每月總表功能
-function isDateInMonth(dateStr, y, m) {
-  if(!dateStr) return false;
-  const d = new Date(dateStr);
-  return d.getFullYear() === y && d.getMonth() === m;
-}
-
+// 修正點 1 & 3：總表卡片化設計，加入待審核紀錄，並應用修復後的日期函式
 function sumPrev() { sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary(); }
 function sumNext() { sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary(); }
 
 function renderSummary() {
   document.getElementById('sum-title').textContent = `${sumYear}年 ${sumMonth+1}月`;
-  let h = '<div class="table-wrap"><table class="dtable"><thead><tr><th>教師姓名</th><th>休假日期 (假別)</th><th>補休日期 (時間)</th></tr></thead><tbody>';
+  let h = '';
 
   if(teachers.length === 0) {
-    h += '<tr><td colspan="3" class="empty">無教師資料</td></tr>';
+    h = '<div class="empty">無教師資料</div>';
   } else {
     teachers.forEach(t => {
-      // 找出該月份被核准的休假
-      const leaves = leaveRequests.filter(r => r.teacherId === t.id && r.status === 'approved' && isDateInMonth(r.startDate, sumYear, sumMonth));
-      let leaveStr = leaves.map(r => `<div style="margin-bottom:4px;font-size:12px;">${fmtD(r.startDate)} (${LEAVE_TYPES[r.type]?.label})</div>`).join('') || '<span style="color:#94A3B8">-</span>';
+      // 抓取不等於 'rejected' (包含 pending 待審核 與 approved 已核准) 的假單
+      const leaves = leaveRequests.filter(r => r.teacherId === t.id && r.status !== 'rejected' && isOverlapMonth(r.startDate, r.endDate, sumYear, sumMonth));
+      let leaveStr = leaves.map(r => {
+          let d = r.startDate===r.endDate ? fmtD(r.startDate) : `${fmtD(r.startDate)}~${fmtD(r.endDate)}`;
+          let tStr = (r.startTime==='08:00'&&r.endTime==='17:30') ? '全天' : `${r.startTime}~${r.endTime}`;
+          let sTag = r.status==='pending' ? '<span class="tag t-y" style="padding:1px 4px;font-size:10px;margin-left:4px">待審核</span>' : '';
+          return `<div class="sum-item"><span style="color:var(--blue-d);margin-top:2px">●</span> <div><div>${d} ${tStr} ${sTag}</div><div style="font-size:11px;color:var(--text3)">${LEAVE_TYPES[r.type]?.label} (${r.days}天)</div></div></div>`;
+      }).join('');
+      if(!leaveStr) leaveStr = '<div class="sum-empty">無休假紀錄</div>';
 
-      // 找出該月份的補休
-      const comps = compUseReqs.filter(r => r.teacherId === t.id && r.status === 'approved' && isDateInMonth(r.startDate, sumYear, sumMonth));
-      let compStr = comps.map(r => `<div style="margin-bottom:4px;font-size:12px;">${fmtD(r.startDate)} ${r.startTime}~${r.endTime}</div>`).join('') || '<span style="color:#94A3B8">-</span>';
+      const comps = compUseReqs.filter(r => r.teacherId === t.id && r.status !== 'rejected' && isOverlapMonth(r.startDate, r.endDate, sumYear, sumMonth));
+      let compStr = comps.map(r => {
+          let d = r.startDate===r.endDate ? fmtD(r.startDate) : `${fmtD(r.startDate)}~${fmtD(r.endDate)}`;
+          let sTag = r.status==='pending' ? '<span class="tag t-y" style="padding:1px 4px;font-size:10px;margin-left:4px">待審核</span>' : '';
+          return `<div class="sum-item"><span style="color:var(--green-d);margin-top:2px">●</span> <div><div>${d} ${r.startTime}~${r.endTime} ${sTag}</div><div style="font-size:11px;color:var(--text3)">共 ${r.minutes} 分鐘</div></div></div>`;
+      }).join('');
+      if(!compStr) compStr = '<div class="sum-empty">無補休紀錄</div>';
 
-      h += `<tr><td style="font-weight:700">${t.name}</td><td>${leaveStr}</td><td>${compStr}</td></tr>`;
+      h += `
+      <div class="sum-card">
+        <div class="sum-tname">👤 ${t.name}</div>
+        <div class="sum-grid">
+          <div>
+            <div class="sum-sec-title st-leave">休假紀錄</div>
+            ${leaveStr}
+          </div>
+          <div>
+            <div class="sum-sec-title st-comp">補休紀錄</div>
+            ${compStr}
+          </div>
+        </div>
+      </div>`;
     });
   }
-  h += '</tbody></table></div>';
   document.getElementById('sum-table').innerHTML = h;
 }
 
-// 初始化
 window.onload=()=>{
   loadGasUrl(); loadFromCloud(); startPolling(); updateAdminUI(); nav('home');
   calYear=new Date().getFullYear(); calMonth=new Date().getMonth();
@@ -1023,10 +920,7 @@ function openAdminLogin(){document.getElementById('admin-pw').value='';openOv('o
 
 function openClearModal(){openOv('ov-clear');}
 function execClear(){
-  const type=document.querySelector('input[name="clr"]:checked').value;
-  if(type==='all'){teachers=[];leaveRequests=[];otRecords=[];compUseReqs=[];schedules=[];swapRequests=[];ids={t:1,l:1,ot:1,cu:1,s:1,sw:1};}
-  else if(type==='leave')leaveRequests=[]; else if(type==='comp'){otRecords=[];compUseReqs=[];}
-  else if(type==='sched')schedules=[];
+  teachers=[];leaveRequests=[];otRecords=[];compUseReqs=[];schedules=[];ids={t:1,l:1,ot:1,cu:1,s:1};
   saveAll(); closeOv('ov-clear'); toast('資料已清空'); renderPage(curPage);
 }
 </script>
