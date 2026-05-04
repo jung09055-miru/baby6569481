@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -166,7 +166,7 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 .step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6}
 .step-list li::before{content:counter(step);background:var(--orange);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:1px}
 
-/* 修改點：新增總表專屬卡片樣式 */
+/* 總表專屬卡片樣式 */
 .sum-card { background:#fff;border-radius:var(--r-md);border:1px solid var(--border);padding:14px;margin-bottom:12px;box-shadow:var(--sh-sm); }
 .sum-tname { font-weight:900;font-size:15px;color:var(--text);margin-bottom:10px;border-bottom:1px solid var(--gray2);padding-bottom:6px; }
 .sum-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
@@ -186,7 +186,7 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
   .ph-title{font-size:17px}
   .home-cols{grid-template-columns:1fr!important}
   .teachers-grid{grid-template-columns:1fr!important}
-  .sum-grid{grid-template-columns:1fr!important;gap:8px} /* 確保手機版總表不擠壓 */
+  .sum-grid{grid-template-columns:1fr!important;gap:8px}
 }
 @media(min-width:769px){
   .overlay.bsc{align-items:center;justify-content:center}
@@ -308,7 +308,6 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
         <button style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text2)" onclick="sumNext()"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
     </div>
-    <!-- 移除了原本的 table，改為獨立卡片渲染機制 -->
     <div id="sum-table"></div>
   </div>
   <div class="page" id="page-teachers">
@@ -323,18 +322,15 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 <div class="overlay center" id="ov-setup">
   <div class="modal-box" style="max-width:540px">
     <div class="sh-title"><span>☁️</span>雲端同步設定（Google Sheets）</div>
-    <div class="alert al-b" style="margin-bottom:14px">
-      <i class="fa-solid fa-circle-info"></i><span>請依以下步驟設定，完成後所有人打開網頁都能即時共用同一份資料。</span>
-    </div>
+    <div id="setup-test-result" style="margin-bottom:14px"></div>
     <div class="fg" style="margin-top:14px">
-      <label class="fl">貼上您的 Apps Script 網址</label>
+      <label class="fl">您的 Apps Script 網址</label>
       <input type="url" class="fi" id="setup-url" placeholder="https://script.google.com/macros/s/...../exec">
     </div>
-    <div id="setup-test-result" style="margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-full" onclick="closeOv('ov-setup')">關閉</button>
-      <button class="btn btn-o btn-full" onclick="testSetupUrl()"><i class="fa-solid fa-plug"></i>測試連線</button>
-      <button class="btn btn-p btn-full" onclick="saveSetupUrl()"><i class="fa-solid fa-check"></i>儲存並啟用</button>
+      <button class="btn btn-o btn-full" id="btn-setup-test" onclick="testSetupUrl()"><i class="fa-solid fa-plug"></i>測試連線</button>
+      <button class="btn btn-p btn-full" id="btn-setup-save" onclick="saveSetupUrl()"><i class="fa-solid fa-check"></i>儲存並啟用</button>
     </div>
   </div>
 </div>
@@ -507,6 +503,13 @@ body{font-family:'Noto Sans TC','Nunito',sans-serif;background:var(--cream);colo
 </div>
 
 <script>
+// ==========================================
+// ★ 系統共用設定區 ★
+// 請將您的 Google Apps Script 網址貼在下方引號內
+// 只要這裡設定好，所有教職員打開網頁就會自動共用同一份資料！
+const SYSTEM_GAS_URL = 'https://script.google.com/macros/s/AKfycbxRFY6GxOluDmQaLtY4GMHJYCTfl1yaTULTcIuICKx6Dz25XowKRt9jvQx0XqU7LMXD_g/exec';
+// ==========================================
+
 const DEFAULT_GAS_URL = '';
 let GAS_URL = '';
 const LS_GAS_URL = 'hv_gas_url';
@@ -514,8 +517,20 @@ let pollTimer = null;
 let isSaving = false;
 let isDirty = localStorage.getItem('hv_dirty') === 'true';
 
-function loadGasUrl() { try { GAS_URL = localStorage.getItem(LS_GAS_URL) || DEFAULT_GAS_URL; } catch(e) { GAS_URL = DEFAULT_GAS_URL; } }
-function saveGasUrl(url) { GAS_URL = url; try { localStorage.setItem(LS_GAS_URL, url); } catch(e) {} }
+// 修改點 1：載入網址時，優先讀取全域變數，確保所有裝置都能拿到同一把鑰匙
+function loadGasUrl() { 
+  if (SYSTEM_GAS_URL && SYSTEM_GAS_URL.trim() !== '') {
+    GAS_URL = SYSTEM_GAS_URL.trim();
+    return;
+  }
+  try { GAS_URL = localStorage.getItem(LS_GAS_URL) || DEFAULT_GAS_URL; } catch(e) { GAS_URL = DEFAULT_GAS_URL; } 
+}
+
+function saveGasUrl(url) { 
+  if (SYSTEM_GAS_URL && SYSTEM_GAS_URL.trim() !== '') return; // 全域設定啟動時，禁止覆蓋
+  GAS_URL = url; 
+  try { localStorage.setItem(LS_GAS_URL, url); } catch(e) {} 
+}
 
 function showSyncStatus(msg, type='ok') {
   const el = document.getElementById('sync-status');
@@ -525,7 +540,23 @@ function showSyncStatus(msg, type='ok') {
   el.style.color = type==='ok'?'#e8ffe8':type==='err'?'#ffe8e8':'#fff3cc';
 }
 
-function openSetup() { loadGasUrl(); document.getElementById('setup-url').value = GAS_URL; document.getElementById('setup-test-result').innerHTML = ''; openOv('ov-setup'); }
+function openSetup() { 
+  loadGasUrl(); 
+  const urlInput = document.getElementById('setup-url');
+  const saveBtn = document.getElementById('btn-setup-save');
+  urlInput.value = GAS_URL; 
+  
+  if (SYSTEM_GAS_URL && SYSTEM_GAS_URL.trim() !== '') {
+    urlInput.disabled = true;
+    document.getElementById('setup-test-result').innerHTML = '<div class="alert al-b"><i class="fa-solid fa-lock"></i><span>已啟用全域共用網址，所有設備皆已自動連線，無需手動設定。</span></div>';
+    if(saveBtn) saveBtn.style.display = 'none';
+  } else {
+    urlInput.disabled = false;
+    document.getElementById('setup-test-result').innerHTML = '';
+    if(saveBtn) saveBtn.style.display = 'block';
+  }
+  openOv('ov-setup'); 
+}
 
 async function testSetupUrl() {
   const url = document.getElementById('setup-url').value.trim();
@@ -593,8 +624,19 @@ function applyPayload(p) {
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   if (!GAS_URL) return;
-  pollTimer = setInterval(() => { if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return; loadFromCloud(); }, 15000);
+  // 修改點 2：縮短輪詢時間，加速多人操作時的畫面更新率 (從 15 秒縮短為 8 秒)
+  pollTimer = setInterval(() => { if (!GAS_URL || isSaving || !navigator.onLine || isDirty) return; loadFromCloud(); }, 8000);
 }
+
+// 修改點 3：加入畫面可見度與焦點事件。當教職員解鎖手機或切換回網頁時，立刻觸發雲端抓取，達成「即時共用」的體感。
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && GAS_URL) {
+    loadFromCloud();
+  }
+});
+window.addEventListener('focus', () => {
+  if (GAS_URL) loadFromCloud();
+});
 
 let HOLIDAYS = {'2026-01-01':'元旦','2026-01-26':'除夕','2026-02-28':'二二八','2026-05-01':'勞動節'};
 const LEAVE_TYPES = {
@@ -623,7 +665,6 @@ function todayStr(){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// 修正點 2：字串直接解析日期，避免時區吃掉一日的 Bug
 function fmtD(d){
   if(!d) return '';
   const pts = d.split('-');
@@ -631,7 +672,6 @@ function fmtD(d){
   return d;
 }
 
-// 修正點 2：判斷假單區間是否與該月份重疊 (支援單日與跨月請假)
 function isOverlapMonth(sd, ed, y, m) {
   if(!sd) return false;
   const end = ed || sd;
@@ -847,7 +887,6 @@ function submitTeacher(){
 
 function deleteTeacher(id){ openCfm('刪除教師','確定移除此教師？',()=>{teachers=teachers.filter(x=>x.id!==id);saveAll();renderPage('teachers');}); }
 
-// 修正點 1 & 3：總表卡片化設計，加入待審核紀錄，並應用修復後的日期函式
 function sumPrev() { sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary(); }
 function sumNext() { sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary(); }
 
@@ -859,7 +898,6 @@ function renderSummary() {
     h = '<div class="empty">無教師資料</div>';
   } else {
     teachers.forEach(t => {
-      // 抓取不等於 'rejected' (包含 pending 待審核 與 approved 已核准) 的假單
       const leaves = leaveRequests.filter(r => r.teacherId === t.id && r.status !== 'rejected' && isOverlapMonth(r.startDate, r.endDate, sumYear, sumMonth));
       let leaveStr = leaves.map(r => {
           let d = r.startDate===r.endDate ? fmtD(r.startDate) : `${fmtD(r.startDate)}~${fmtD(r.endDate)}`;
