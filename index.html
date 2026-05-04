@@ -250,6 +250,7 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
   </div>
 </div>
 <div class="main">
+  <!-- 修改重點 1: 首頁總覽，僅保留待審核與特休餘額 -->
   <div class="page active" id="page-home">
     <div class="ph">
       <div class="ph-title"><span class="em">🌈</span>首頁總覽</div>
@@ -257,12 +258,14 @@ code{background:var(--gray);padding:2px 6px;border-radius:5px;font-size:12px;fon
     </div>
     <div id="setup-reminder"></div>
     <div id="home-alerts"></div>
-    <div class="stat-grid" id="home-stats"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="home-cols">
       <div class="card"><div class="card-title"><span class="em">📋</span>待審核假單</div><div id="home-pending"></div></div>
-      <div class="card"><div class="card-title"><span class="em">📅</span>今日排班</div><div id="home-today-sched"></div></div>
+      <div class="card">
+        <div class="card-title"><span class="em">🏖️</span>各老師特休餘額</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700;" id="home-aca-period"></div>
+        <div id="home-balances"></div>
+      </div>
     </div>
-    <div class="card mt18"><div class="card-title"><span class="em">⚠️</span>特休餘額警示</div><div id="home-leave-warn"></div></div>
   </div>
   <div class="page" id="page-calendar">
     <div class="ph">
@@ -715,6 +718,9 @@ let ids={t:1,l:1,ot:1,cu:1,s:1,sw:1};
 let curPage='home', calYear=2026, calMonth=4, lTab='pending', cTab='ot';
 let activeDateForSched = '';
 
+// 修改點 2：新增每月總表變數
+let sumYear = new Date().getFullYear(), sumMonth = new Date().getMonth();
+
 /* UTILS */
 function isWE(d){const w=new Date(d).getDay();return w===0||w===6;}
 function isHol(d){return !!HOLIDAYS[d];}
@@ -725,13 +731,31 @@ function m2hm(m){if(m<=0)return '0分';const h=Math.floor(m/60),mn=m%60;return h
 function fmtD(d){if(!d)return '';const dt=new Date(d);return `${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 function todayStr(){return new Date().toISOString().slice(0,10);}
+
+// 修改點 3: 新增學年度區間判斷功能 (當年度8/1至隔年7/31)
+function getAcaYearBounds(dateStr) {
+  const d = dateStr ? new Date(dateStr) : new Date();
+  const y = d.getFullYear();
+  const m = d.getMonth(); // 0 是 1月, 7 是 8月
+  let startY = m >= 7 ? y : y - 1;
+  return { start: `${startY}-08-01`, end: `${startY+1}-07-31` };
+}
+
 function annualLeave(hireDate,carryover=0){const yrs=(new Date()-new Date(hireDate))/(31557600000);let d=yrs<0.5?0:yrs<1?3:yrs<2?7:yrs<3?10:yrs<5?14:yrs<10?15:Math.min(30,15+Math.floor(yrs-10));return d+(carryover||0);}
+
+// 修改點 3: 更新特休餘額邏輯，套用 8 月 1 日學期制重新起算規則
 function annualBalance(tid){
   const t=teachers.find(x=>x.id===tid); if(!t)return 0;
   const total=annualLeave(t.hireDate,t.carryover);
-  const used=leaveRequests.filter(r=>r.teacherId===tid&&r.type==='annual'&&r.status==='approved').reduce((a,r)=>a+r.days,0);
+  const bounds = getAcaYearBounds(todayStr());
+  // 僅計算在「當前學年度」區間內已被核准的特休天數
+  const used=leaveRequests.filter(r=>
+    r.teacherId===tid && r.type==='annual' && r.status==='approved' &&
+    r.startDate >= bounds.start && r.startDate <= bounds.end
+  ).reduce((a,r)=>a+r.days,0);
   return Math.max(0,total-used);
 }
+
 function compBalance(tid){
   const earned=otRecords.filter(r=>r.teacherId===tid).reduce((a,r)=>a+r.minutes,0);
   const used=compUseReqs.filter(r=>r.teacherId===tid&&r.status==='approved').reduce((a,r)=>a+r.minutes,0);
@@ -781,7 +805,6 @@ function renderLeaveContent(){
       const t=teacherById(r.teacherId); const lt=LEAVE_TYPES[r.type];
       h+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt.color}">${lt.label}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.days}天)</div>`;
       if(lTab==='pending' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">✓ 核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">✕ 拒絕</button></div>`;
-      // 需求核心：管理員刪除已核准假單並退還
       else if(lTab==='approved' && authState.isAdmin) h+=`<div class="li-actions"><button class="btn btn-d btn-sm" onclick="deleteAndRefundLeave(${r.id})"><i class="fa-solid fa-rotate-left"></i> 刪除並退還額度</button></div>`;
       h+='</div>';
     }); c.innerHTML=h;
@@ -863,7 +886,6 @@ function renderCalendar(){
     leaveRequests.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).forEach(r=>{
       const t=teacherById(r.teacherId); if(t) evs+=`<span class="cal-ev lv">${t.name}休</span>`;
     });
-    // 需求 1：日曆顯示補休具體時間
     compUseReqs.filter(r=>r.status==='approved'&&r.startDate<=dstr&&r.endDate>=dstr).forEach(r=>{
       const t=teacherById(r.teacherId); if(t) evs+=`<span class="cal-ev cp">${t.name} ${r.startTime}補</span>`;
     });
@@ -882,7 +904,6 @@ function handleDayClick(d){
   const sc=schedules.filter(s=>s.date===d);
   let h='<div class="sec-label">當日假單/補休</div>';
   lv.forEach(r=>h+=`<div class="list-item">${teacherById(r.teacherId)?.name} (${LEAVE_TYPES[r.type].label}) ${r.startTime}~${r.endTime}</div>`);
-  // 需求 1：明細內完整時間顯示
   cp.forEach(r=>h+=`<div class="list-item">${teacherById(r.teacherId)?.name} (補休) ${r.startTime}~${r.endTime}</div>`);
   h+='<div class="sec-label">排班人員</div>';
   sc.forEach(s=>h+=`<div class="list-item">${teacherById(s.teacherId)?.name} - ${s.cls}</div>`);
@@ -899,6 +920,7 @@ function renderPage(p){
   else if(p==='leave') renderLeaveContent();
   else if(p==='comp') renderCompContent();
   else if(p==='teachers') renderTeachers();
+  else if(p==='summary') renderSummary(); // 修改點 2: 加入呼叫每月總表
   updateBadges(); updateAdminUI();
 }
 function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').length;document.getElementById('nb-leave').textContent=n;document.getElementById('nb-leave').style.display=n?'block':'none';}
@@ -906,11 +928,27 @@ function updateBadges(){const n=leaveRequests.filter(r=>r.status==='pending').le
 function openCfm(title,msg,cb){document.getElementById('cfm-title').textContent=title;document.getElementById('cfm-msg').textContent=msg;cfmCallback=cb;openOv('ov-confirm');}
 function doCfm(){if(cfmCallback)cfmCallback();closeOv('ov-confirm');}
 
+// 修改點 1: 更新首頁總覽，僅出現待審核清單（含日期資訊）及老師特休餘額
 function renderHome(){
   const pending=leaveRequests.filter(r=>r.status==='pending');
-  let h=''; pending.forEach(r=>h+=`<div class="list-item"><div class="li-name">${teacherById(r.teacherId)?.name}</div><div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">核准</button>`:'待管理員核准'}</div></div>`);
-  document.getElementById('home-pending').innerHTML=h||'<div class="empty">目前無待審核假單</div>';
-  document.getElementById('home-stats').innerHTML=`<div class="stat-card sc-o"><div class="stat-icon">👩‍🏫</div><div><div class="stat-label">教師</div><div class="stat-value">${teachers.length}</div></div></div><div class="stat-card sc-r"><div class="stat-icon">📄</div><div><div class="stat-label">待審</div><div class="stat-value">${pending.length}</div></div></div>`;
+  let hPending='';
+  pending.forEach(r=>{
+    const t = teacherById(r.teacherId);
+    const lt = LEAVE_TYPES[r.type];
+    // 新增詳細日期與時間
+    hPending+=`<div class="list-item"><div class="li-header"><div class="li-name">${t?t.name:'?'} <span class="tag ${lt?lt.color:''}">${lt?lt.label:'?'}</span></div></div><div class="li-meta">📅 ${fmtD(r.startDate)} ${r.startTime}~${r.endTime} (${r.days}天)</div><div class="li-actions">${authState.isAdmin?`<button class="btn btn-s btn-sm" onclick="approveLeave(${r.id})">核准</button><button class="btn btn-d btn-sm" onclick="rejectLeave(${r.id})">拒絕</button>`:'待管理員核准'}</div></div>`;
+  });
+  document.getElementById('home-pending').innerHTML=hPending||'<div class="empty">目前無待審核假單</div>';
+
+  // 顯示特休區間並渲染餘額
+  const bounds = getAcaYearBounds(todayStr());
+  document.getElementById('home-aca-period').textContent = `學年計算區間：${bounds.start} ~ ${bounds.end}`;
+  let hBal='';
+  teachers.forEach(t=>{
+    const bal = annualBalance(t.id);
+    hBal+=`<div class="list-item"><div class="li-header"><div class="li-name">${t.name}</div><div class="tag t-b">剩餘 ${bal} 天</div></div></div>`;
+  });
+  document.getElementById('home-balances').innerHTML=hBal||'<div class="empty">無教師資料</div>';
 }
 
 function renderTeachers(){
@@ -926,6 +964,39 @@ function submitTeacher(){
 }
 
 function deleteTeacher(id){ openCfm('刪除教師','確定要移除此教師嗎？相關請假紀錄將受影響。',()=>{teachers=teachers.filter(x=>x.id!==id);saveAll();renderPage('teachers');}); }
+
+// 修改點 2: 實作每月總表功能
+function isDateInMonth(dateStr, y, m) {
+  if(!dateStr) return false;
+  const d = new Date(dateStr);
+  return d.getFullYear() === y && d.getMonth() === m;
+}
+
+function sumPrev() { sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary(); }
+function sumNext() { sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary(); }
+
+function renderSummary() {
+  document.getElementById('sum-title').textContent = `${sumYear}年 ${sumMonth+1}月`;
+  let h = '<div class="table-wrap"><table class="dtable"><thead><tr><th>教師姓名</th><th>休假日期 (假別)</th><th>補休日期 (時間)</th></tr></thead><tbody>';
+
+  if(teachers.length === 0) {
+    h += '<tr><td colspan="3" class="empty">無教師資料</td></tr>';
+  } else {
+    teachers.forEach(t => {
+      // 找出該月份被核准的休假
+      const leaves = leaveRequests.filter(r => r.teacherId === t.id && r.status === 'approved' && isDateInMonth(r.startDate, sumYear, sumMonth));
+      let leaveStr = leaves.map(r => `<div style="margin-bottom:4px;font-size:12px;">${fmtD(r.startDate)} (${LEAVE_TYPES[r.type]?.label})</div>`).join('') || '<span style="color:#94A3B8">-</span>';
+
+      // 找出該月份的補休
+      const comps = compUseReqs.filter(r => r.teacherId === t.id && r.status === 'approved' && isDateInMonth(r.startDate, sumYear, sumMonth));
+      let compStr = comps.map(r => `<div style="margin-bottom:4px;font-size:12px;">${fmtD(r.startDate)} ${r.startTime}~${r.endTime}</div>`).join('') || '<span style="color:#94A3B8">-</span>';
+
+      h += `<tr><td style="font-weight:700">${t.name}</td><td>${leaveStr}</td><td>${compStr}</td></tr>`;
+    });
+  }
+  h += '</tbody></table></div>';
+  document.getElementById('sum-table').innerHTML = h;
+}
 
 // 初始化
 window.onload=()=>{
